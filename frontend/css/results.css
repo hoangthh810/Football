@@ -1,0 +1,138 @@
+.tabs {
+  background: #eef3f5;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 16px;
+  padding: 4px;
+}
+
+.tab {
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  font-weight: 850;
+  min-height: 38px;
+}
+
+.tab.active {
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(16, 24, 32, 0.1);
+  color: var(--ink);
+}
+
+.pitch-preview {
+  aspect-ratio: 16 / 9;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 50%, transparent 50%),
+    repeating-linear-gradient(90deg, #0c7c59 0 12%, #0a704f 12% 24%);
+  border-radius: 8px;
+  min-height: 280px;
+  overflow: hidden;
+  position: relative;
+}
+
+.pitch-preview::before {
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  content: "";
+  inset: 14px;
+  position: absolute;
+}
+
+.pitch-line {
+  border-color: rgba(255, 255, 255, 0.65);
+  position: absolute;
+}
+
+.pitch-line.center {
+  border-left: 2px solid rgba(255, 255, 255, 0.65);
+  bottom: 14px;
+  left: 50%;
+  top: 14px;
+}
+
+.pitch-line.box {
+  border: 2px solid rgba(255, 255, 255, 0.65);
+  height: 42%;
+  top: 29%;
+  width: 16%;
+}
+
+.pitch-line.left {
+  border-left: 0;
+  left: 14px;
+}
+
+.pitch-line.right {
+  border-right: 0;
+  right: 14px;
+}
+
+.player-box {
+  background: rgba(0, 167, 200, 0.12);
+  border: 2px solid var(--cyan);
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  height: 58px;
+  position: absolute;
+  width: 44px;
+}
+
+.player-box.away {
+  background: rgba(240, 167, 34, 0.13);
+  border-color: var(--amber);
+}
+
+.player-box span {
+  background: rgba(4, 15, 20, 0.78);
+  border-radius: 999px;
+  display: inline-grid;
+  font-size: 0.78rem;
+  font-weight: 900;
+  height: 23px;
+  place-items: center;
+  width: 23px;
+}
+
+.player-box:focus,
+.player-box:hover {
+  outline: 3px solid rgba(255, 255, 255, 0.8);
+}
+
+.p1 { left: 14%; top: 42%; }
+.p2 { left: 33%; top: 30%; }
+.p3 { left: 43%; top: 56%; }
+.p4 { right: 32%; top: 34%; }
+.p5 { right: 18%; top: 58%; }
+
+.selected-player {
+  align-items: center;
+  background: #f5f8f9;
+  border-radius: 8px;
+  color: #34424e;
+  display: flex;
+  gap: 10px;
+  line-height: 1.5;
+  margin-top: 14px;
+  min-height: 52px;
+  padding: 12px 14px;
+}
+
+.status-dot {
+  background: var(--amber);
+  border-radius: 999px;
+  display: inline-block;
+  flex: 0 0 auto;
+  height: 10px;
+  width: 10px;
+}
+
+@media (max-width: 580px) {
+  .pitch-preview {
+    min-height: 220px;
+  }
+}

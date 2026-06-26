@@ -1,0 +1,53 @@
+.stat-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 20px;
+}
+
+.stat-card span,
+.stat-card small,
+.health-list span {
+  color: var(--muted);
+}
+
+.stat-card strong {
+  display: block;
+  font-size: 2rem;
+  margin: 8px 0 2px;
+}
+
+.health-list {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.health-list li {
+  align-items: center;
+  background: #f5f8f9;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  padding: 14px;
+}
+
+.toolbar {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 1040px) {
+  .stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 580px) {
+  .stat-grid,
+  .toolbar {
+    grid-template-columns: 1fr;
+  }
+}

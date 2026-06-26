@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Trận đấu & dữ liệu - MatchVision AI</title>
+    <link rel="stylesheet" href="../css/common.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+  </head>
+  <body class="dashboard-page">
+    <aside class="sidebar admin-sidebar">
+      <a class="brand" href="index.html"><span class="brand-mark">MV</span><span><strong>MatchVision</strong><small>Admin console</small></span></a>
+      <nav class="side-nav">
+        <a href="admin-dashboard.html">Tổng quan</a>
+        <a href="admin-users.html">Quản lý user</a>
+        <a class="active" href="admin-matches.html">Trận đấu & dữ liệu</a>
+        <a href="admin-models.html">Model & job AI</a>
+        <a href="login.html">Đăng xuất</a>
+      </nav>
+    </aside>
+    <main class="dashboard-main">
+      <header class="dashboard-header">
+        <div><p class="eyebrow">Data management</p><h1>Quản lý trận đấu và file upload</h1></div>
+      </header>
+      <section class="panel">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Trận đấu</th><th>PDF</th><th>Video</th><th>Owner</th><th>Ngày tạo</th><th>Trạng thái</th></tr></thead>
+            <tbody>
+              <tr><td>Hanoi FC vs Saigon United</td><td>lineup.pdf</td><td>match.mp4</td><td>analyst@club.vn</td><td>26/06/2026</td><td><span class="badge done">Parsed</span></td></tr>
+              <tr><td>Da Nang vs Hue</td><td>teamsheet.pdf</td><td>clip.mp4</td><td>coach@team.vn</td><td>25/06/2026</td><td><span class="badge running">Processing</span></td></tr>
+              <tr><td>U21 Trial Match</td><td>lineup-u21.pdf</td><td>trial.mov</td><td>demo@student.vn</td><td>24/06/2026</td><td><span class="badge review">Need review</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

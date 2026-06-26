@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Dashboard - MatchVision AI</title>
+    <link rel="stylesheet" href="../css/common.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+  </head>
+  <body class="dashboard-page">
+    <aside class="sidebar admin-sidebar">
+      <a class="brand" href="index.html"><span class="brand-mark">MV</span><span><strong>MatchVision</strong><small>Admin console</small></span></a>
+      <nav class="side-nav">
+        <a class="active" href="admin-dashboard.html">Tổng quan</a>
+        <a href="admin-users.html">Quản lý user</a>
+        <a href="admin-matches.html">Trận đấu & dữ liệu</a>
+        <a href="admin-models.html">Model & job AI</a>
+        <a href="login.html">Đăng xuất</a>
+      </nav>
+    </aside>
+    <main class="dashboard-main">
+      <header class="dashboard-header">
+        <div><p class="eyebrow">Admin console</p><h1>Tổng quan hệ thống</h1></div>
+        <span class="status-pill">Healthy</span>
+      </header>
+      <section class="stat-grid">
+        <div class="stat-card"><span>Users</span><strong>128</strong><small>12 user mới tuần này</small></div>
+        <div class="stat-card"><span>Analysis jobs</span><strong>342</strong><small>28 job đang chạy</small></div>
+        <div class="stat-card"><span>Uploaded files</span><strong>1,904</strong><small>PDF + video</small></div>
+        <div class="stat-card"><span>Model version</span><strong>v1.2</strong><small>Production</small></div>
+      </section>
+      <section class="result-grid">
+        <div class="panel">
+          <div class="section-heading compact"><p class="eyebrow">Queue</p><h2>Job gần đây</h2></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Job</th><th>Owner</th><th>Trạng thái</th><th>Model</th></tr></thead>
+              <tbody>
+                <tr><td>#A-2190</td><td>analyst@club.vn</td><td><span class="badge running">Running</span></td><td>v1.2</td></tr>
+                <tr><td>#A-2189</td><td>coach@team.vn</td><td><span class="badge done">Done</span></td><td>v1.2</td></tr>
+                <tr><td>#A-2188</td><td>demo@student.vn</td><td><span class="badge review">Review</span></td><td>v1.1</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="section-heading compact"><p class="eyebrow">Health</p><h2>Dịch vụ backend dự kiến</h2></div>
+          <ul class="health-list">
+            <li><strong>FastAPI</strong><span class="badge done">Online</span></li>
+            <li><strong>PostgreSQL</strong><span class="badge done">Online</span></li>
+            <li><strong>Redis queue</strong><span class="badge running">Busy</span></li>
+            <li><strong>AI worker</strong><span class="badge done">Online</span></li>
+          </ul>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

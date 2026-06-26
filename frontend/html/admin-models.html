@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Model & job AI - MatchVision AI</title>
+    <link rel="stylesheet" href="../css/common.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+  </head>
+  <body class="dashboard-page">
+    <aside class="sidebar admin-sidebar">
+      <a class="brand" href="index.html"><span class="brand-mark">MV</span><span><strong>MatchVision</strong><small>Admin console</small></span></a>
+      <nav class="side-nav">
+        <a href="admin-dashboard.html">Tổng quan</a>
+        <a href="admin-users.html">Quản lý user</a>
+        <a href="admin-matches.html">Trận đấu & dữ liệu</a>
+        <a class="active" href="admin-models.html">Model & job AI</a>
+        <a href="login.html">Đăng xuất</a>
+      </nav>
+    </aside>
+    <main class="dashboard-main">
+      <header class="dashboard-header">
+        <div><p class="eyebrow">AI operations</p><h1>Quản lý model và inference job</h1></div>
+        <button class="primary-action" type="button">Deploy model</button>
+      </header>
+      <section class="settings-grid">
+        <div class="panel">
+          <div class="section-heading compact"><p class="eyebrow">Models</p><h2>Model versions</h2></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Model</th><th>Task</th><th>Status</th><th>mAP/Acc</th></tr></thead>
+              <tbody>
+                <tr><td>player-detector-v1.2</td><td>Player box</td><td><span class="badge done">Production</span></td><td>91.8%</td></tr>
+                <tr><td>jersey-ocr-v0.9</td><td>Number OCR</td><td><span class="badge running">Staging</span></td><td>87.4%</td></tr>
+                <tr><td>team-classifier-v0.3</td><td>Team color</td><td><span class="badge review">Review</span></td><td>82.1%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="section-heading compact"><p class="eyebrow">Runtime</p><h2>Worker configuration</h2></div>
+          <form class="job-form">
+            <label>Docker image<input value="matchvision-ai-worker:1.2" /></label>
+            <label>Batch size<input value="16" /></label>
+            <label>Confidence threshold<input value="0.45" /></label>
+            <label>OCR threshold<input value="0.60" /></label>
+          </form>
+          <button class="primary-action" type="button">Lưu cấu hình</button>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Đăng nhập - MatchVision AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/common.css" />
+    <link rel="stylesheet" href="../css/auth.css" />
+  </head>
+  <body class="auth-page login-auth" data-auth-page="login">
+    <canvas class="auth-orbit" aria-hidden="true"></canvas>
+    <main class="auth-layout">
+      <section class="auth-visual">
+        <a class="brand auth-brand" href="index.html">
+          <span class="brand-mark">MV</span>
+          <span><strong>MatchVision AI</strong><small>Player detection workspace</small></span>
+        </a>
+
+        <div class="auth-hero-copy">
+          <p class="eyebrow">Secure workspace</p>
+          <h1>Đăng nhập để tiếp tục phân tích trận đấu</h1>
+          <p>Truy cập dashboard, quản lý file upload và xem kết quả mapping cầu thủ từ pipeline AI.</p>
+        </div>
+
+        <div class="auth-preview" aria-label="Pipeline demo">
+          <div class="preview-top">
+            <span class="preview-dot"></span>
+            <span>Analysis session</span>
+            <strong data-live-status>Running</strong>
+          </div>
+          <div class="scan-field">
+            <span class="scan-line"></span>
+            <span class="player-tag tag-one">#19</span>
+            <span class="player-tag tag-two">#8</span>
+            <span class="player-tag tag-three">#10</span>
+          </div>
+          <div class="preview-stats">
+            <div><strong>94.8%</strong><span>Top confidence</span></div>
+            <div><strong>12</strong><span>Players tracked</span></div>
+            <div><strong>03</strong><span>Files synced</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="auth-panel" aria-labelledby="login-title">
+        <div class="auth-card">
+          <div class="auth-card-head">
+            <p class="eyebrow">Welcome back</p>
+            <span>Demo access</span>
+          </div>
+          <h2 id="login-title">Đăng nhập</h2>
+          <p class="auth-lead">Dùng tài khoản demo để vào nhanh workspace phân tích.</p>
+
+          <form class="auth-form" data-auth-form>
+            <label>Email
+              <input data-auth-input type="email" placeholder="analyst@club.vn" required />
+            </label>
+            <label>Mật khẩu
+              <span class="password-field">
+                <input data-auth-input data-password-input type="password" placeholder="••••••••" required />
+                <button class="password-toggle" type="button" data-password-toggle>Hiện</button>
+              </span>
+            </label>
+            <div class="form-row">
+              <label class="check-label"><input type="checkbox" /> Ghi nhớ tôi</label>
+              <a href="login.html">Quên mật khẩu?</a>
+            </div>
+            <a class="submit-link" href="user-upload.html">Đăng nhập demo</a>
+          </form>
+
+          <div class="auth-divider"><span>hoặc</span></div>
+          <a class="demo-admin-link" href="admin-dashboard.html">Vào Admin console</a>
+
+          <p class="auth-switch">Chưa có tài khoản? <a href="register.html">Đăng ký ngay</a></p>
+        </div>
+      </section>
+    </main>
+    <script src="../js/auth.js"></script>
+  </body>
+</html>

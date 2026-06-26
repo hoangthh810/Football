@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MatchVision AI - Nền tảng nhận diện cầu thủ bóng đá</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/common.css" />
+    <link rel="stylesheet" href="../css/landing.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="MatchVision AI">
+        <span class="brand-mark">MV</span>
+        <span>
+          <strong>MatchVision AI</strong>
+          <small>Football intelligence platform</small>
+        </span>
+      </a>
+      <nav class="site-nav" aria-label="Điều hướng chính">
+        <a href="#features">Tính năng</a>
+        <a href="#workflow">Quy trình</a>
+        <a href="#platform">Nền tảng</a>
+        <a href="#roles">Vai trò</a>
+      </nav>
+      <div class="header-actions">
+        <a class="nav-button ghost" href="login.html">Đăng nhập</a>
+        <a class="nav-button solid" href="register.html">Đăng ký</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="landing-hero">
+        <img src="../assets/football-ai-hero.png" alt="Hệ thống AI phân tích cầu thủ trên sân bóng" />
+        <div class="hero-shade"></div>
+        <div class="hero-content">
+          <div class="landing-copy">
+            <p class="eyebrow">AI Player Detection</p>
+            <h1>Nhận diện cầu thủ, số áo và hồ sơ thi đấu từ video bóng đá</h1>
+            <p>
+              MatchVision AI gom PDF đội hình, video trận đấu và mô hình nhận diện vào một luồng làm việc rõ ràng,
+              giúp đội phân tích theo dõi cầu thủ, mapping số áo và xuất kết quả nhanh hơn.
+            </p>
+            <div class="hero-actions">
+              <a class="primary-action" href="register.html">Bắt đầu demo</a>
+              <a class="secondary-action" href="user-upload.html">Xem workspace</a>
+            </div>
+            <div class="hero-trust" aria-label="Điểm nổi bật">
+              <span>Realtime review</span>
+              <span>Human-in-the-loop</span>
+              <span>API-ready frontend</span>
+            </div>
+          </div>
+
+          <aside class="hero-panel" aria-label="Tóm tắt pipeline">
+            <div class="hero-panel-head">
+              <span>Live pipeline</span>
+              <strong>Ready</strong>
+            </div>
+            <ol class="hero-checklist">
+              <li><span>01</span><strong>Upload PDF đội hình</strong><small>Đọc số áo, vị trí và tên cầu thủ</small></li>
+              <li><span>02</span><strong>Phân tích video</strong><small>Detect cầu thủ và vùng áo trong từng frame</small></li>
+              <li><span>03</span><strong>Mapping hồ sơ</strong><small>Ghép kết quả AI với database đội bóng</small></li>
+            </ol>
+            <div class="hero-signal">
+              <span class="signal-dot"></span>
+              <span>Model worker chờ job mới</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="metric-strip" aria-label="Chỉ số sản phẩm">
+        <div><strong>PDF + Video</strong><span>Dữ liệu đầu vào đồng bộ</span></div>
+        <div><strong>YOLO + OCR</strong><span>Pipeline AI dễ mở rộng</span></div>
+        <div><strong>FastAPI</strong><span>Sẵn sàng nối backend</span></div>
+        <div><strong>Role-based</strong><span>User và admin riêng</span></div>
+      </section>
+
+      <section class="section" id="features">
+        <div class="section-heading wide">
+          <p class="eyebrow">Product features</p>
+          <h2>Một workspace chuyên nghiệp cho toàn bộ vòng đời phân tích cầu thủ</h2>
+          <p>Thiết kế theo đúng luồng của một hệ thống AI: nạp dữ liệu, chạy inference, kiểm tra kết quả và quản trị vận hành.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <span class="feature-icon">01</span>
+            <h3>Upload tài liệu trận đấu</h3>
+            <p>Người dùng tải PDF đội hình và video vào cùng một phiên phân tích để backend xử lý tập trung.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-icon">02</span>
+            <h3>Trích xuất đội hình</h3>
+            <p>Chuẩn bị sẵn màn hình cho việc parse số áo, tên cầu thủ, vị trí và đội bóng từ tài liệu lineup.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-icon">03</span>
+            <h3>Detect cầu thủ và số áo</h3>
+            <p>Mô phỏng bounding box, confidence và mapping kết quả AI sang hồ sơ cầu thủ có trong database.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-icon">04</span>
+            <h3>Quản trị hệ thống</h3>
+            <p>Admin theo dõi user, trận đấu, file upload, phiên inference, model version và trạng thái dịch vụ.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section band" id="workflow">
+        <div class="section-heading wide">
+          <p class="eyebrow">Workflow</p>
+          <h2>Quy trình xử lý rõ ràng từ dữ liệu thô đến kết quả có thể kiểm tra</h2>
+        </div>
+        <ol class="timeline">
+          <li><span>1</span><strong>Upload lineup</strong><small>PDF đội hình, số áo, vị trí</small></li>
+          <li><span>2</span><strong>Upload video</strong><small>Full match, highlight hoặc clip test</small></li>
+          <li><span>3</span><strong>Run inference</strong><small>Detect cầu thủ, áo và số áo</small></li>
+          <li><span>4</span><strong>Review result</strong><small>Ghép dữ liệu và kiểm tra confidence</small></li>
+        </ol>
+      </section>
+
+      <section class="section platform-section" id="platform">
+        <div class="section-heading">
+          <p class="eyebrow">Architecture ready</p>
+          <h2>Sẵn sàng để nối backend thật</h2>
+        </div>
+        <div class="platform-layout">
+          <div class="platform-copy">
+            <h3>Frontend hiện đã tách lớp cho demo, API và dashboard.</h3>
+            <p>
+              Các màn hình public, user workspace và admin console được tổ chức riêng,
+              phù hợp để bạn gắn FastAPI, database, Docker worker và model AI ở bước tiếp theo.
+            </p>
+          </div>
+          <div class="stack-list" aria-label="Công nghệ dự kiến">
+            <span>FastAPI</span>
+            <span>PostgreSQL</span>
+            <span>Docker</span>
+            <span>YOLO</span>
+            <span>OCR</span>
+            <span>Role-based UI</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="roles">
+        <div class="section-heading wide">
+          <p class="eyebrow">Role-based UI</p>
+          <h2>Tách rõ trải nghiệm cho người dùng và quản trị viên</h2>
+        </div>
+        <div class="role-grid">
+          <article class="role-panel">
+            <h3>User workspace</h3>
+            <p>Upload tài liệu/video, theo dõi job phân tích, xem kết quả mapping và chỉnh thông tin tài khoản.</p>
+            <a class="inline-link" href="user-upload.html">Mở user workspace</a>
+          </article>
+          <article class="role-panel">
+            <h3>Admin console</h3>
+            <p>Quản lý người dùng, trận đấu, file upload, model version và các inference job trong hệ thống.</p>
+            <a class="inline-link" href="admin-dashboard.html">Mở admin console</a>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer" role="contentinfo">
+      <div class="footer-cta">
+        <div>
+          <p class="eyebrow">Ready for demo</p>
+          <h2>Biến video trận đấu thành dữ liệu cầu thủ có thể kiểm tra.</h2>
+        </div>
+        <a class="primary-action" href="register.html">Tạo workspace</a>
+      </div>
+
+      <div class="footer-main">
+        <div class="footer-brand">
+          <a class="brand" href="index.html" aria-label="MatchVision AI">
+            <span class="brand-mark">MV</span>
+            <span>
+              <strong>MatchVision AI</strong>
+              <small>Football player intelligence</small>
+            </span>
+          </a>
+          <p>Nền tảng demo cho đồ án nhận diện cầu thủ bóng đá bằng AI, thiết kế để nối FastAPI, database và model worker ở bước tiếp theo.</p>
+          <div class="footer-status"><span class="signal-dot"></span> Demo frontend active</div>
+        </div>
+
+        <nav class="footer-column" aria-label="Sản phẩm">
+          <h3>Sản phẩm</h3>
+          <a href="#features">Tính năng</a>
+          <a href="#workflow">Quy trình xử lý</a>
+          <a href="#platform">Kiến trúc</a>
+          <a href="#roles">Vai trò</a>
+        </nav>
+
+        <nav class="footer-column" aria-label="Workspace">
+          <h3>Workspace</h3>
+          <a href="user-upload.html">Upload dữ liệu</a>
+          <a href="user-results.html">Kết quả phân tích</a>
+          <a href="user-settings.html">Cài đặt tài khoản</a>
+          <a href="admin-dashboard.html">Admin console</a>
+        </nav>
+
+        <div class="footer-column">
+          <h3>Công nghệ</h3>
+          <a href="#platform">FastAPI backend</a>
+          <a href="#platform">PostgreSQL database</a>
+          <a href="#platform">Docker worker</a>
+          <a href="#platform">YOLO + OCR</a>
+        </div>
+
+        <address class="footer-column footer-contact">
+          <h3>Liên hệ demo</h3>
+          <span>AI Football Analytics</span>
+          <span>Hanoi, Vietnam</span>
+          <a href="mailto:demo@matchvision.ai">demo@matchvision.ai</a>
+        </address>
+      </div>
+
+      <div class="footer-bottom">
+        <small>© 2026 MatchVision AI. Demo project for football player recognition.</small>
+        <div>
+          <a href="login.html">Đăng nhập</a>
+          <a href="register.html">Đăng ký</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cài đặt tài khoản - MatchVision AI</title>
+    <link rel="stylesheet" href="../css/common.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/settings.css" />
+  </head>
+  <body class="dashboard-page">
+    <aside class="sidebar">
+      <a class="brand" href="index.html"><span class="brand-mark">MV</span><span><strong>MatchVision</strong><small>User workspace</small></span></a>
+      <nav class="side-nav">
+        <a href="user-upload.html">Upload dữ liệu</a>
+        <a href="user-results.html">Kết quả phân tích</a>
+        <a class="active" href="user-settings.html">Cài đặt tài khoản</a>
+        <a href="login.html">Đăng xuất</a>
+      </nav>
+    </aside>
+    <main class="dashboard-main">
+      <header class="dashboard-header">
+        <div><p class="eyebrow">Account</p><h1>Cài đặt tài khoản</h1></div>
+      </header>
+      <section class="settings-grid">
+        <div class="panel">
+          <div class="section-heading compact"><p class="eyebrow">Profile</p><h2>Thông tin cá nhân</h2></div>
+          <form class="job-form">
+            <label>Họ tên<input value="Nguyen Minh Anh" /></label>
+            <label>Email<input value="analyst@club.vn" /></label>
+            <label>Vai trò<input value="Data analyst" /></label>
+            <label>Đơn vị<input value="Hanoi FC Analysis Team" /></label>
+          </form>
+          <button class="primary-action" type="button">Lưu thay đổi</button>
+        </div>
+        <div class="panel">
+          <div class="section-heading compact"><p class="eyebrow">API</p><h2>Endpoint backend</h2></div>
+          <form class="job-form">
+            <label>FastAPI Base URL<input id="apiBase" value="http://localhost:8000" /></label>
+            <label>Upload endpoint<input value="/api/v1/jobs/upload" /></label>
+            <label>Result endpoint<input value="/api/v1/jobs/{id}/results" /></label>
+          </form>
+          <button class="primary-action" id="saveApi" type="button">Lưu endpoint</button>
+          <p class="file-meta" id="apiStatus">Endpoint demo, chưa gọi request thật.</p>
+        </div>
+      </section>
+    </main>
+    <script src="../js/user-settings.js"></script>
+  </body>
+</html>

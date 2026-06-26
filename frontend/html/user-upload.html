@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>User Upload - MatchVision AI</title>
+    <link rel="stylesheet" href="../css/common.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/upload.css" />
+  </head>
+  <body class="dashboard-page">
+    <aside class="sidebar">
+      <a class="brand" href="index.html"><span class="brand-mark">MV</span><span><strong>MatchVision</strong><small>User workspace</small></span></a>
+      <nav class="side-nav">
+        <a class="active" href="user-upload.html">Upload dữ liệu</a>
+        <a href="user-results.html">Kết quả phân tích</a>
+        <a href="user-settings.html">Cài đặt tài khoản</a>
+        <a href="login.html">Đăng xuất</a>
+      </nav>
+    </aside>
+    <main class="dashboard-main">
+      <header class="dashboard-header">
+        <div><p class="eyebrow">User workspace</p><h1>Upload tài liệu và video trận đấu</h1></div>
+        <span class="status-pill">Ready to upload</span>
+      </header>
+
+      <section class="upload-grid">
+        <div class="upload-zone" id="pdfDropZone" tabindex="0" role="button" aria-label="Chọn file PDF đội hình">
+          <input id="pdfInput" name="lineup_pdf" type="file" accept="application/pdf,.pdf" />
+          <span class="icon-circle">PDF</span>
+          <h2>PDF đội hình ra sân</h2>
+          <p>Kéo thả hoặc chọn file PDF có đội hình 2 đội, số áo, vị trí và tên cầu thủ.</p>
+          <button class="file-button" type="button">Chọn PDF</button>
+          <p class="file-meta" id="pdfMeta">Chưa có PDF nào</p>
+        </div>
+        <div class="upload-zone" id="videoDropZone" tabindex="0" role="button" aria-label="Chọn video trận đấu">
+          <input id="videoInput" name="match_video" type="file" accept="video/*" />
+          <span class="icon-circle">MP4</span>
+          <h2>Video trận đấu</h2>
+          <p>Tải video full match, highlight hoặc clip test để mô hình detect cầu thủ và số áo.</p>
+          <button class="file-button" type="button">Chọn video</button>
+          <p class="file-meta" id="videoMeta">Chưa có video nào</p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading compact">
+          <p class="eyebrow">New analysis job</p>
+          <h2>Thông tin phiên phân tích</h2>
+        </div>
+        <form class="job-form" id="uploadJobForm" name="upload_job">
+          <label for="jobName">Tên trận đấu<input id="jobName" name="job_name" value="Hanoi FC vs Saigon United" required /></label>
+          <label for="matchDate">Ngày thi đấu<input id="matchDate" name="match_date" type="date" value="2026-06-26" required /></label>
+          <label for="modelVersion">Model version<select id="modelVersion" name="model_version"><option value="player-detector-v1.2">player-detector-v1.2</option><option value="jersey-ocr-v0.9">jersey-ocr-v0.9</option></select></label>
+          <label for="jobNote">Ghi chú<textarea id="jobNote" name="job_note">Demo cho đồ án AI player detection.</textarea></label>
+          <div class="upload-actions">
+            <button class="primary-action" id="uploadJobButton" type="submit">Upload và tạo job</button>
+            <span class="file-meta upload-status" id="uploadStatus">Chọn PDF và video trước khi upload.</span>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading compact">
+          <p class="eyebrow">Pipeline status</p>
+          <h2>Trạng thái xử lý</h2>
+        </div>
+        <ol class="timeline compact-timeline" id="pipelineList">
+          <li class="active"><span>1</span><strong>Upload</strong><small>Nhận PDF và video</small></li>
+          <li><span>2</span><strong>Parse PDF</strong><small>Đọc đội hình</small></li>
+          <li><span>3</span><strong>Inference</strong><small>Detect cầu thủ</small></li>
+          <li><span>4</span><strong>Mapping</strong><small>Ghép dữ liệu</small></li>
+        </ol>
+      </section>
+    </main>
+    <script src="../js/user-upload.js"></script>
+  </body>
+</html>

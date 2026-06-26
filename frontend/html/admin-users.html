@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quản lý user - MatchVision AI</title>
+    <link rel="stylesheet" href="../css/common.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+  </head>
+  <body class="dashboard-page">
+    <aside class="sidebar admin-sidebar">
+      <a class="brand" href="index.html"><span class="brand-mark">MV</span><span><strong>MatchVision</strong><small>Admin console</small></span></a>
+      <nav class="side-nav">
+        <a href="admin-dashboard.html">Tổng quan</a>
+        <a class="active" href="admin-users.html">Quản lý user</a>
+        <a href="admin-matches.html">Trận đấu & dữ liệu</a>
+        <a href="admin-models.html">Model & job AI</a>
+        <a href="login.html">Đăng xuất</a>
+      </nav>
+    </aside>
+    <main class="dashboard-main">
+      <header class="dashboard-header">
+        <div><p class="eyebrow">Users</p><h1>Quản lý người dùng</h1></div>
+        <button class="primary-action" type="button">Thêm user</button>
+      </header>
+      <section class="panel">
+        <div class="toolbar">
+          <input placeholder="Tìm theo email, tên, đơn vị..." />
+          <select><option>Tất cả vai trò</option><option>Admin</option><option>Data analyst</option><option>Coach</option></select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tên</th><th>Email</th><th>Vai trò</th><th>Trạng thái</th><th>Jobs</th></tr></thead>
+            <tbody>
+              <tr><td>Nguyen Minh Anh</td><td>analyst@club.vn</td><td>Data analyst</td><td><span class="badge done">Active</span></td><td>42</td></tr>
+              <tr><td>Tran Bao Nam</td><td>coach@team.vn</td><td>Coach</td><td><span class="badge done">Active</span></td><td>31</td></tr>
+              <tr><td>Le Hoai Phong</td><td>admin@mv.ai</td><td>Admin</td><td><span class="badge running">Admin</span></td><td>88</td></tr>
+              <tr><td>Student Demo</td><td>demo@student.vn</td><td>AI engineer</td><td><span class="badge review">Pending</span></td><td>6</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

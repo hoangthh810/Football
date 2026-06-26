@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Đăng ký - MatchVision AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/common.css" />
+    <link rel="stylesheet" href="../css/auth.css" />
+  </head>
+  <body class="auth-page register-auth" data-auth-page="register">
+    <canvas class="auth-orbit" aria-hidden="true"></canvas>
+    <main class="auth-layout">
+      <section class="auth-visual register-visual">
+        <a class="brand auth-brand" href="index.html">
+          <span class="brand-mark">MV</span>
+          <span><strong>MatchVision AI</strong><small>Football analytics platform</small></span>
+        </a>
+
+        <div class="auth-hero-copy">
+          <p class="eyebrow">Create workspace</p>
+          <h1>Tạo workspace phân tích cho đội của bạn</h1>
+          <p>Chuẩn bị giao diện frontend gọn gàng cho FastAPI, database, Docker worker và mô hình AI phía sau.</p>
+        </div>
+
+        <div class="auth-preview register-preview" aria-label="Workspace setup demo">
+          <div class="preview-top">
+            <span class="preview-dot"></span>
+            <span>Workspace setup</span>
+            <strong data-live-status>Ready</strong>
+          </div>
+          <div class="setup-list">
+            <div><span>01</span><strong>User dashboard</strong><small>Upload và theo dõi job</small></div>
+            <div><span>02</span><strong>Admin console</strong><small>Quản trị user, match, model</small></div>
+            <div><span>03</span><strong>AI operations</strong><small>Sẵn sàng nối worker thật</small></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="auth-panel" aria-labelledby="register-title">
+        <div class="auth-card">
+          <div class="auth-card-head">
+            <p class="eyebrow">Start now</p>
+            <span>New workspace</span>
+          </div>
+          <h2 id="register-title">Đăng ký</h2>
+          <p class="auth-lead">Tạo tài khoản demo để đi thẳng vào luồng upload và phân tích.</p>
+
+          <form class="auth-form" data-auth-form>
+            <label>Họ tên
+              <input data-auth-input type="text" placeholder="Nguyễn Minh Anh" required />
+            </label>
+            <label>Email
+              <input data-auth-input type="email" placeholder="you@club.vn" required />
+            </label>
+            <label>Vai trò
+              <select data-auth-input required>
+                <option>Data analyst</option>
+                <option>Coach</option>
+                <option>AI engineer</option>
+                <option>Admin</option>
+              </select>
+            </label>
+            <label>Mật khẩu
+              <span class="password-field">
+                <input data-auth-input data-password-input type="password" placeholder="Tối thiểu 8 ký tự" required />
+                <button class="password-toggle" type="button" data-password-toggle>Hiện</button>
+              </span>
+            </label>
+            <a class="submit-link" href="user-upload.html">Tạo tài khoản demo</a>
+          </form>
+
+          <p class="auth-switch">Đã có tài khoản? <a href="login.html">Đăng nhập</a></p>
+        </div>
+      </section>
+    </main>
+    <script src="../js/auth.js"></script>
+  </body>
+</html>
