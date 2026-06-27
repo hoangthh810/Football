@@ -3,6 +3,26 @@ const uploadState = {
   video: null
 };
 
+const previewUrls = {
+  pdf: null,
+  video: null
+};
+
+const uploadRules = {
+  pdf: {
+    label: "PDF",
+    extensions: [".pdf"],
+    contentTypes: ["application/pdf"],
+    maxSizeMb: 10
+  },
+  video: {
+    label: "MP4",
+    extensions: [".mp4"],
+    contentTypes: ["video/mp4"],
+    maxSizeMb: 50
+  }
+};
+
 function setPipelineStep(stepIndex) {
   document.querySelectorAll("#pipelineList li").forEach((item, index) => {
     item.classList.toggle("active", index <= stepIndex);
@@ -25,29 +45,194 @@ function setUploadStatus(message, type = "default") {
   status.style.color = type === "error" ? "var(--red)" : type === "success" ? "var(--green)" : "";
 }
 
-function wireUploadZone(zoneId, inputId, metaId, allowedLabel, validator, stateKey) {
+function setOverlayProgress(percent) {
+  const progressBar = document.querySelector("#uploadProgressBar");
+  const progressText = document.querySelector("#uploadProgressText");
+  const value = Math.max(0, Math.min(100, Math.round(percent)));
+
+  if (progressBar) progressBar.style.width = `${value}%`;
+  if (progressText) progressText.textContent = `${value}%`;
+}
+
+function setUploadOverlay(state, title, message, percent = 0) {
+  const overlay = document.querySelector("#uploadOverlay");
+  const modal = overlay?.querySelector(".upload-modal");
+  const icon = document.querySelector("#uploadOverlayIcon");
+  const titleElement = document.querySelector("#uploadOverlayTitle");
+  const messageElement = document.querySelector("#uploadOverlayMessage");
+  const closeButton = document.querySelector("#uploadOverlayClose");
+  if (!overlay || !modal || !icon || !titleElement || !messageElement || !closeButton) return;
+
+  overlay.hidden = false;
+  modal.classList.remove("uploading", "success", "error");
+  modal.classList.add(state);
+  icon.textContent = state === "success" ? "OK" : state === "error" ? "!" : "...";
+  titleElement.textContent = title;
+  messageElement.textContent = message;
+  closeButton.hidden = state === "uploading";
+  setOverlayProgress(percent);
+}
+
+function closeUploadOverlay() {
+  const overlay = document.querySelector("#uploadOverlay");
+  if (overlay) overlay.hidden = true;
+}
+
+function getFileExtension(fileName) {
+  const dotIndex = fileName.lastIndexOf(".");
+  return dotIndex >= 0 ? fileName.slice(dotIndex).toLowerCase() : "";
+}
+
+function validateSelectedFile(file, rule) {
+  const extension = getFileExtension(file.name);
+  const hasValidExtension = rule.extensions.includes(extension);
+  const hasValidContentType = !file.type || rule.contentTypes.includes(file.type);
+  const maxSizeBytes = rule.maxSizeMb * 1024 * 1024;
+
+  if (!hasValidExtension || !hasValidContentType) {
+    return `Vui lòng chọn đúng file ${rule.label}. Backend hiện chỉ nhận ${rule.extensions.join(", ")}.`;
+  }
+
+  if (file.size > maxSizeBytes) {
+    return `File quá lớn. Tối đa ${rule.maxSizeMb}MB cho ${rule.label}.`;
+  }
+
+  return "";
+}
+
+function resetUploadResult() {
+  const panel = document.querySelector("#uploadResultPanel");
+  const container = document.querySelector("#uploadedFiles");
+  if (panel) panel.hidden = true;
+  if (container) container.innerHTML = "";
+}
+
+function clearFilePreview(stateKey) {
+  const preview = document.querySelector(`#${stateKey}Preview`);
+  const zone = document.querySelector(`#${stateKey}DropZone`);
+
+  if (previewUrls[stateKey]) {
+    URL.revokeObjectURL(previewUrls[stateKey]);
+    previewUrls[stateKey] = null;
+  }
+
+  if (preview) {
+    preview.innerHTML = "";
+    preview.hidden = true;
+  }
+
+  if (zone) zone.classList.remove("has-file");
+}
+
+function renderFilePreview(stateKey, file) {
+  const preview = document.querySelector(`#${stateKey}Preview`);
+  const zone = document.querySelector(`#${stateKey}DropZone`);
+  if (!preview) return;
+
+  clearFilePreview(stateKey);
+
+  const objectUrl = URL.createObjectURL(file);
+  previewUrls[stateKey] = objectUrl;
+  preview.hidden = false;
+  if (zone) zone.classList.add("has-file");
+
+  if (stateKey === "pdf") {
+    preview.innerHTML = `<iframe title="Preview ${escapeHtml(file.name)}" src="${objectUrl}"></iframe>`;
+    return;
+  }
+
+  preview.innerHTML = `<video src="${objectUrl}" controls preload="metadata"></video>`;
+}
+
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes)) return "N/A";
+  return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[character]);
+}
+
+function renderUploadResults(results) {
+  const panel = document.querySelector("#uploadResultPanel");
+  const container = document.querySelector("#uploadedFiles");
+  if (!panel || !container) return;
+
+  container.innerHTML = results
+    .map((result) => `
+      <article class="uploaded-file-card">
+        <div>
+          <span class="badge done">${escapeHtml(result.file_type || "uploaded")}</span>
+          <h3>${escapeHtml(result.original_filename || "Uploaded file")}</h3>
+        </div>
+        <dl>
+          <div><dt>File ID</dt><dd>${escapeHtml(result.file_id || "N/A")}</dd></div>
+          <div><dt>Dung lượng</dt><dd>${formatBytes(result.file_size)}</dd></div>
+          <div><dt>Content type</dt><dd>${escapeHtml(result.content_type || "N/A")}</dd></div>
+          <div><dt>Storage path</dt><dd>${escapeHtml(result.storage_path || "N/A")}</dd></div>
+        </dl>
+      </article>
+    `)
+    .join("");
+
+  panel.hidden = false;
+}
+
+function getErrorMessage(payload, fallback) {
+  if (!payload) return fallback;
+  if (typeof payload === "string") return payload;
+  if (typeof payload.detail === "string") return payload.detail;
+  if (Array.isArray(payload.detail)) return payload.detail.map((item) => item.msg || JSON.stringify(item)).join(", ");
+  return fallback;
+}
+
+function wireUploadZone(zoneId, inputId, metaId, stateKey) {
   const zone = document.querySelector(`#${zoneId}`);
   const input = document.querySelector(`#${inputId}`);
   const meta = document.querySelector(`#${metaId}`);
+  const browseButton = zone?.querySelector(".file-button");
+  const rule = uploadRules[stateKey];
   if (!zone || !input || !meta) return;
 
   const handleFile = (file) => {
     if (!file) return;
-    if (!validator(file)) {
-      meta.textContent = `Vui lòng chọn đúng file ${allowedLabel}.`;
+    const validationMessage = validateSelectedFile(file, rule);
+    if (validationMessage) {
+      uploadState[stateKey] = null;
+      clearFilePreview(stateKey);
+      meta.textContent = validationMessage;
       meta.style.color = "var(--red)";
+      setUploadStatus(validationMessage, "error");
       return;
     }
 
     uploadState[stateKey] = file;
     meta.style.color = "";
     meta.textContent = formatFileMeta(file);
+    renderFilePreview(stateKey, file);
     setUploadStatus("File đã sẵn sàng. Bấm Upload và tạo job để gửi lên backend.");
     setPipelineStep(0);
+    resetUploadResult();
   };
 
-  zone.addEventListener("click", () => input.click());
+  browseButton?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    input.click();
+  });
+
+  zone.addEventListener("click", (event) => {
+    if (event.target instanceof Element && event.target.closest(".file-preview")) return;
+    if (event.target instanceof Element && event.target.closest(".file-button")) return;
+    input.click();
+  });
   zone.addEventListener("keydown", (event) => {
+    if (event.target instanceof Element && event.target.closest(".file-preview")) return;
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       input.click();
@@ -72,21 +257,56 @@ function wireUploadZone(zoneId, inputId, metaId, allowedLabel, validator, stateK
   zone.addEventListener("drop", (event) => handleFile(event.dataTransfer.files[0]));
 }
 
-async function uploadOneFile(file) {
-  const formData = new FormData();
-  formData.append("file", file);
+function parseUploadResponse(request) {
+  const contentType = request.getResponseHeader("content-type") || "";
 
-  const response = await fetch(`${getApiBaseUrl()}/api/v1/upload/file`, {
-    method: "POST",
-    body: formData
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || `Upload failed with HTTP ${response.status}`);
+  if (!contentType.includes("application/json")) {
+    return request.responseText;
   }
 
-  return response.json();
+  try {
+    return JSON.parse(request.responseText || "{}");
+  } catch {
+    return request.responseText;
+  }
+}
+
+function uploadMatchFiles(pdfFile, videoFile, onProgress) {
+  return new Promise((resolve, reject) => {
+    const formData = new FormData();
+    formData.append("pdf_file", pdfFile);
+    formData.append("video_file", videoFile);
+
+    const request = new XMLHttpRequest();
+    request.open("POST", `${getApiBaseUrl()}/api/v1/upload/match-files`);
+
+    request.upload.addEventListener("progress", (event) => {
+      if (!event.lengthComputable) return;
+      const percent = (event.loaded / event.total) * 100;
+      onProgress(percent);
+    });
+
+    request.addEventListener("load", () => {
+      const payload = parseUploadResponse(request);
+
+      if (request.status >= 200 && request.status < 300) {
+        resolve(payload);
+        return;
+      }
+
+      reject(new Error(getErrorMessage(payload, `Upload failed with HTTP ${request.status}`)));
+    });
+
+    request.addEventListener("error", () => {
+      reject(new Error("Không kết nối được backend. Vui lòng kiểm tra server hoặc mạng."));
+    });
+
+    request.addEventListener("abort", () => {
+      reject(new Error("Upload đã bị hủy."));
+    });
+
+    request.send(formData);
+  });
 }
 
 function initUploadJobForm() {
@@ -105,23 +325,30 @@ function initUploadJobForm() {
 
     button.disabled = true;
     button.textContent = "Đang upload...";
-    setUploadStatus(`Đang upload job "${jobData.job_name}" lên backend...`);
+    resetUploadResult();
+    setUploadStatus(`Đang upload PDF và video cho job "${jobData.job_name}"...`);
+    setUploadOverlay("uploading", "Đang upload", "Đang gửi PDF và video lên backend.", 0);
     setPipelineStep(0);
 
     try {
-      const pdfResult = await uploadOneFile(uploadState.pdf);
-      const videoResult = await uploadOneFile(uploadState.video);
+      const uploadResult = await uploadMatchFiles(uploadState.pdf, uploadState.video, (percent) => {
+        setOverlayProgress(percent);
+        if (percent >= 100) {
+          setUploadOverlay("uploading", "Đang xử lý", "File đã gửi xong. Đang chờ backend lưu dữ liệu.", 100);
+        }
+      });
+      const uploadedFiles = Array.isArray(uploadResult.files) ? uploadResult.files : [];
 
-      console.log("PDF upload result:", pdfResult);
-      console.log("Video upload result:", videoResult);
-      
+      renderUploadResults(uploadedFiles);
       setPipelineStep(1);
       setTimeout(() => setPipelineStep(2), 450);
       setTimeout(() => setPipelineStep(3), 900);
-      setUploadStatus(`Upload thành công: ${jobData.job_name}.`, "success");
+      setUploadStatus(`Upload thành công: ${jobData.job_name}. Batch ${uploadResult.batch_id} đã lưu đủ PDF và video.`, "success");
+      setUploadOverlay("success", "Upload thành công", `Backend đã lưu đủ PDF và video cho batch ${uploadResult.batch_id}.`, 100);
       button.textContent = "Upload lại";
     } catch (error) {
       setUploadStatus(`Upload thất bại: ${error.message}`, "error");
+      setUploadOverlay("error", "Upload thất bại", error.message, 100);
       button.textContent = "Thử upload lại";
     } finally {
       button.disabled = false;
@@ -129,6 +356,7 @@ function initUploadJobForm() {
   });
 }
 
-wireUploadZone("pdfDropZone", "pdfInput", "pdfMeta", "PDF", (file) => file.name.toLowerCase().endsWith(".pdf"), "pdf");
-wireUploadZone("videoDropZone", "videoInput", "videoMeta", "video", (file) => file.type.startsWith("video/"), "video");
+wireUploadZone("pdfDropZone", "pdfInput", "pdfMeta", "pdf");
+wireUploadZone("videoDropZone", "videoInput", "videoMeta", "video");
+document.querySelector("#uploadOverlayClose")?.addEventListener("click", closeUploadOverlay);
 initUploadJobForm();

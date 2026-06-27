@@ -32,14 +32,16 @@
           <p>Kéo thả hoặc chọn file PDF có đội hình 2 đội, số áo, vị trí và tên cầu thủ.</p>
           <button class="file-button" type="button">Chọn PDF</button>
           <p class="file-meta" id="pdfMeta">Chưa có PDF nào</p>
+          <div class="file-preview" id="pdfPreview" aria-label="Xem trước PDF" hidden></div>
         </div>
         <div class="upload-zone" id="videoDropZone" tabindex="0" role="button" aria-label="Chọn video trận đấu">
-          <input id="videoInput" name="match_video" type="file" accept="video/*" />
+          <input id="videoInput" name="match_video" type="file" accept="video/mp4,.mp4" />
           <span class="icon-circle">MP4</span>
           <h2>Video trận đấu</h2>
-          <p>Tải video full match, highlight hoặc clip test để mô hình detect cầu thủ và số áo.</p>
+          <p>Tải video MP4 full match, highlight hoặc clip test để mô hình detect cầu thủ và số áo.</p>
           <button class="file-button" type="button">Chọn video</button>
           <p class="file-meta" id="videoMeta">Chưa có video nào</p>
+          <div class="file-preview" id="videoPreview" aria-label="Xem trước video" hidden></div>
         </div>
       </section>
 
@@ -60,6 +62,14 @@
         </form>
       </section>
 
+      <section class="panel upload-result-panel" id="uploadResultPanel" hidden>
+        <div class="section-heading compact">
+          <p class="eyebrow">Backend response</p>
+          <h2>Kết quả upload</h2>
+        </div>
+        <div class="uploaded-files" id="uploadedFiles"></div>
+      </section>
+
       <section class="panel">
         <div class="section-heading compact">
           <p class="eyebrow">Pipeline status</p>
@@ -73,6 +83,18 @@
         </ol>
       </section>
     </main>
+    <div class="upload-overlay" id="uploadOverlay" role="status" aria-live="polite" hidden>
+      <div class="upload-modal">
+        <span class="upload-modal-icon" id="uploadOverlayIcon">...</span>
+        <h2 id="uploadOverlayTitle">Đang upload</h2>
+        <p id="uploadOverlayMessage">Đang gửi PDF và video lên backend.</p>
+        <div class="upload-progress" aria-label="Tiến độ upload">
+          <span id="uploadProgressBar"></span>
+        </div>
+        <strong id="uploadProgressText">0%</strong>
+        <button class="primary-action" id="uploadOverlayClose" type="button" hidden>Đóng</button>
+      </div>
+    </div>
     <script src="../js/user-upload.js"></script>
   </body>
 </html>
