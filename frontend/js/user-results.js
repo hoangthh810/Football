@@ -1,30 +1,56 @@
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
+const MAX_BATCH_PAGE_SCAN = 100;
 
 const resultState = {
   batches: [],
   selectedBatchId: null,
-  visibleCount: PAGE_SIZE,
-  analysisStarted: false
+  currentPage: 1,
+  hasNextPage: false,
+  analysisStarted: false,
 };
 
 const sampleDetections = [
-  { frame: "00:12:08", number: "#19", player: "Le Quang Hai", team: "Hanoi FC", confidence: "88.9%" },
-  { frame: "00:18:41", number: "#10", player: "Park Joon Ho", team: "Saigon United", confidence: "94.8%" },
-  { frame: "00:31:22", number: "#8", player: "Tran Minh Khoa", team: "Hanoi FC", confidence: "91.4%" }
+  {
+    frame: "00:12:08",
+    number: "#19",
+    player: "Le Quang Hai",
+    team: "Hanoi FC",
+    confidence: "88.9%",
+  },
+  {
+    frame: "00:18:41",
+    number: "#10",
+    player: "Park Joon Ho",
+    team: "Saigon United",
+    confidence: "94.8%",
+  },
+  {
+    frame: "00:31:22",
+    number: "#8",
+    player: "Tran Minh Khoa",
+    team: "Hanoi FC",
+    confidence: "91.4%",
+  },
 ];
 
 function getApiBaseUrl() {
-  return (localStorage.getItem("matchvision_api_base") || "http://localhost:8000").replace(/\/$/, "");
+  return (
+    localStorage.getItem("matchvision_api_base") || "http://localhost:8000"
+  ).replace(/\/$/, "");
 }
 
 function escapeHtml(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (character) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[character]);
+  return String(value ?? "").replace(
+    /[&<>"']/g,
+    (character) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      })[character],
+  );
 }
 
 function formatBytes(bytes) {
@@ -37,7 +63,7 @@ function formatDate(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return new Intl.DateTimeFormat("vi-VN", {
-    dateStyle: "medium"
+    dateStyle: "medium",
   }).format(date);
 }
 
@@ -46,7 +72,7 @@ function getUploadStatusLabel(status) {
     uploaded: "Đã upload",
     processing: "Đang xử lý",
     completed: "Hoàn tất",
-    failed: "Lỗi"
+    failed: "Lỗi",
   };
 
   return labels[String(status || "").toLowerCase()] || "Đã upload";
@@ -55,7 +81,7 @@ function getUploadStatusLabel(status) {
 function getFileTypeLabel(fileType) {
   const labels = {
     video: "Video trận đấu",
-    pdf: "PDF đội hình"
+    pdf: "PDF đội hình",
   };
 
   return labels[String(fileType || "").toLowerCase()] || "Tệp đính kèm";
@@ -63,6 +89,31 @@ function getFileTypeLabel(fileType) {
 
 function getFileByType(batch, fileType) {
   return batch?.files?.find((file) => file.file_type === fileType);
+}
+
+function normalizeUploadFile(rawFile) {
+  return {
+    ...rawFile,
+    file_id: rawFile?.file_id || rawFile?._id || "",
+    batch_id: rawFile?.batch_id || "",
+    file_type: rawFile?.file_type || "",
+    original_filename: rawFile?.original_filename || "Tệp đã upload",
+    content_type: rawFile?.content_type || "",
+    file_size: rawFile?.file_size,
+    storage_path: rawFile?.storage_path || "",
+  };
+}
+
+function groupFilesByBatch(files) {
+  return files.reduce((groups, rawFile) => {
+    const file = normalizeUploadFile(rawFile);
+    if (!file.batch_id) return groups;
+
+    const batchFiles = groups.get(file.batch_id) || [];
+    batchFiles.push(file);
+    groups.set(file.batch_id, batchFiles);
+    return groups;
+  }, new Map());
 }
 
 function normalizeBatch(rawBatch) {
@@ -77,22 +128,29 @@ function normalizeBatch(rawBatch) {
       job_name: analysisInfo.job_name || "Upload chưa đặt tên",
       match_date: analysisInfo.match_date || "",
       model_version: analysisInfo.model_version || "",
-      job_note: analysisInfo.job_note || ""
+      job_note: analysisInfo.job_note || "",
     },
-    files: Array.isArray(rawBatch?.files) ? rawBatch.files : [],
-    file_ids: Array.isArray(rawBatch?.file_ids) ? rawBatch.file_ids : []
+    files: Array.isArray(rawBatch?.files)
+      ? rawBatch.files.map(normalizeUploadFile)
+      : [],
+    file_ids: Array.isArray(rawBatch?.file_ids) ? rawBatch.file_ids : [],
   };
 }
 
 function getBatchTitle(batch) {
-  return batch?.analysis_info?.job_name || getFileByType(batch, "video")?.original_filename || getFileByType(batch, "pdf")?.original_filename || "Upload chưa đặt tên";
+  return (
+    batch?.analysis_info?.job_name ||
+    getFileByType(batch, "video")?.original_filename ||
+    getFileByType(batch, "pdf")?.original_filename ||
+    "Upload chưa đặt tên"
+  );
 }
 
 function getBatchDescription(batch) {
   const info = batch?.analysis_info || {};
   const parts = [
     info.match_date ? `Ngày thi đấu: ${formatDate(info.match_date)}` : "",
-    info.model_version ? `Model: ${info.model_version}` : ""
+    info.model_version ? `Model: ${info.model_version}` : "",
   ].filter(Boolean);
 
   return parts.length ? parts.join(" - ") : formatDate(batch?.created_at);
@@ -100,6 +158,7 @@ function getBatchDescription(batch) {
 
 function getPublicFileUrl(file) {
   if (!file?.storage_path) return "";
+  if (/^https?:\/\//i.test(file.storage_path)) return file.storage_path;
   return `${getApiBaseUrl()}/${file.storage_path.replace(/^\/+/, "")}`;
 }
 
@@ -137,32 +196,133 @@ function resetSelectedUploadView() {
 
 function normalizeBatchResponse(payload) {
   if (Array.isArray(payload)) return payload.map(normalizeBatch);
-  if (Array.isArray(payload?.batches)) return payload.batches.map(normalizeBatch);
+  if (Array.isArray(payload?.analysis_jobs)) {
+    const filesByBatch = groupFilesByBatch(
+      Array.isArray(payload?.uploads_files) ? payload.uploads_files : [],
+    );
+
+    return payload.analysis_jobs.map((job) => {
+      const batchId = job?.batch_id || job?._id || job?.job_id || "";
+      return normalizeBatch({
+        ...job,
+        files: filesByBatch.get(batchId) || job?.files || [],
+      });
+    });
+  }
+  if (Array.isArray(payload?.batches))
+    return payload.batches.map(normalizeBatch);
   if (Array.isArray(payload?.jobs)) return payload.jobs.map(normalizeBatch);
   if (Array.isArray(payload?.data)) return payload.data.map(normalizeBatch);
   return [];
 }
 
-async function fetchUploadBatches() {
-  const response = await fetch(`${getApiBaseUrl()}/api/v1/upload/analysis_jobs`);
+async function fetchUploadBatches(page = resultState.currentPage) {
+  const skip = (page - 1) * PAGE_SIZE;
+  const params = new URLSearchParams({
+    limit: String(PAGE_SIZE),
+    skip: String(skip),
+  });
+  const response = await fetch(
+    `${getApiBaseUrl()}/api/v1/upload/analysis_jobs?${params}`,
+  );
   const payload = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(payload.detail || `Không tải được upload. HTTP ${response.status}`);
+    throw new Error(
+      payload.detail || `Không tải được upload. HTTP ${response.status}`,
+    );
   }
 
-  return normalizeBatchResponse(payload);
+  const batches = normalizeBatchResponse(payload);
+  const nextParams = new URLSearchParams({
+    limit: "1",
+    skip: String(skip + PAGE_SIZE),
+  });
+  const nextResponse = await fetch(
+    `${getApiBaseUrl()}/api/v1/upload/analysis_jobs?${nextParams}`,
+  );
+  const nextPayload = await nextResponse.json().catch(() => ({}));
+
+  if (!nextResponse.ok) {
+    throw new Error(
+      nextPayload.detail ||
+        `Không kiểm tra được trang tiếp theo. HTTP ${nextResponse.status}`,
+    );
+  }
+
+  return {
+    batches,
+    hasNextPage: normalizeBatchResponse(nextPayload).length > 0,
+  };
 }
 
-function renderLoadMoreButton() {
-  const button = document.querySelector("#loadMoreUploadsButton");
-  if (!button) return;
+async function findBatchPage(batchId, startPage = 1) {
+  if (!batchId) return null;
 
-  const remainingCount = Math.max(0, resultState.batches.length - resultState.visibleCount);
-  button.hidden = remainingCount === 0;
-  button.textContent = remainingCount > PAGE_SIZE
-    ? `Xem thêm ${PAGE_SIZE} lượt upload`
-    : `Xem thêm ${remainingCount} lượt upload`;
+  for (let page = startPage; page <= MAX_BATCH_PAGE_SCAN; page += 1) {
+    const pageData = await fetchUploadBatches(page);
+    const hasBatch = pageData.batches.some(
+      (batch) => batch.batch_id === batchId,
+    );
+
+    if (hasBatch) {
+      return { page, pageData };
+    }
+
+    if (!pageData.hasNextPage) return null;
+  }
+
+  return null;
+}
+
+function getPaginationPages() {
+  const lastPage = resultState.hasNextPage
+    ? resultState.currentPage + 1
+    : resultState.currentPage;
+  return Array.from({ length: lastPage }, (_, index) => index + 1);
+}
+
+function setUploadPage(page) {
+  if (page < 1 || page === resultState.currentPage) return;
+  loadUploadBatches({ page, shouldAutoSelect: true });
+}
+
+function renderPagination() {
+  const pagination = document.querySelector("#uploadPagination");
+  if (!pagination) return;
+
+  const pages = getPaginationPages();
+  pagination.hidden = resultState.currentPage === 1 && !resultState.hasNextPage;
+
+  if (pagination.hidden) {
+    pagination.innerHTML = "";
+    return;
+  }
+
+  const pageButtons = pages
+    .map((page) => {
+      const isActive = page === resultState.currentPage;
+      return `
+      <button class="pagination-button${isActive ? " active" : ""}" type="button" data-page="${page}" ${isActive ? 'aria-current="page"' : ""}>
+        ${page}
+      </button>
+    `;
+    })
+    .join("");
+
+  pagination.innerHTML = `
+    <button class="pagination-button pagination-step" type="button" data-page="${resultState.currentPage - 1}" ${resultState.currentPage === 1 ? "disabled" : ""}>Trước</button>
+    <div class="pagination-pages" aria-label="Trang upload">
+      ${pageButtons}
+    </div>
+    <button class="pagination-button pagination-step" type="button" data-page="${resultState.currentPage + 1}" ${!resultState.hasNextPage ? "disabled" : ""}>Sau</button>
+  `;
+
+  pagination.querySelectorAll("button[data-page]").forEach((button) => {
+    button.addEventListener("click", () => {
+      setUploadPage(Number(button.dataset.page));
+    });
+  });
 }
 
 function renderUploadList() {
@@ -170,7 +330,7 @@ function renderUploadList() {
   const count = document.querySelector("#uploadCount");
   if (!list || !count) return;
 
-  count.textContent = `${resultState.batches.length} lượt upload`;
+  count.textContent = `Trang ${resultState.currentPage}`;
 
   if (!resultState.batches.length) {
     list.innerHTML = `
@@ -179,13 +339,11 @@ function renderUploadList() {
         <span>Hãy upload PDF và video ở trang Upload dữ liệu trước.</span>
       </div>
     `;
-    renderLoadMoreButton();
+    renderPagination();
     return;
   }
 
-  const visibleBatches = resultState.batches.slice(0, resultState.visibleCount);
-
-  list.innerHTML = visibleBatches
+  list.innerHTML = resultState.batches
     .map((batch) => {
       const info = batch.analysis_info || {};
       const isActive = batch.batch_id === resultState.selectedBatchId;
@@ -206,7 +364,7 @@ function renderUploadList() {
     button.addEventListener("click", () => selectBatch(button.dataset.batchId));
   });
 
-  renderLoadMoreButton();
+  renderPagination();
 }
 
 function renderSelectedFiles(batch) {
@@ -230,7 +388,8 @@ function renderSelectedFiles(batch) {
   `;
 
   const fileCards = (batch.files || [])
-    .map((file) => `
+    .map(
+      (file) => `
       <article class="selected-file-card">
         <div>
           <span class="badge ${file.file_type === "video" ? "running" : "done"}">${escapeHtml(getFileTypeLabel(file.file_type))}</span>
@@ -241,7 +400,8 @@ function renderSelectedFiles(batch) {
           <div><dt>Định dạng</dt><dd>${escapeHtml(file.content_type || "Chưa rõ")}</dd></div>
         </dl>
       </article>
-    `)
+    `,
+    )
     .join("");
 
   container.innerHTML = jobInfoCard + fileCards;
@@ -287,7 +447,8 @@ function renderDetections(batch) {
   }
 
   body.innerHTML = sampleDetections
-    .map((detection) => `
+    .map(
+      (detection) => `
       <tr>
         <td>${escapeHtml(detection.frame)}</td>
         <td>${escapeHtml(detection.number)}</td>
@@ -295,7 +456,8 @@ function renderDetections(batch) {
         <td>${escapeHtml(detection.team)}</td>
         <td>${escapeHtml(detection.confidence)}</td>
       </tr>
-    `)
+    `,
+    )
     .join("");
 
   resultPanel.hidden = false;
@@ -335,23 +497,66 @@ function selectBatch(batchId) {
   renderDetections(batch);
 }
 
-async function loadUploadBatches() {
+async function loadUploadBatches(options = {}) {
+  const page = options.page || resultState.currentPage;
+  const shouldAutoSelect = options.shouldAutoSelect !== false;
+  resultState.currentPage = Math.max(1, page);
   setUploadListStatus("Đang tải danh sách upload...");
 
   try {
-    resultState.batches = await fetchUploadBatches();
-    resultState.visibleCount = PAGE_SIZE;
-    const hasSelectedBatch = resultState.batches.some((batch) => batch.batch_id === resultState.selectedBatchId);
+    const requestedBatchId = new URLSearchParams(window.location.search).get(
+      "batch_id",
+    );
+    let pageData = await fetchUploadBatches(resultState.currentPage);
+    const requestedBatchExistsOnPage = pageData.batches.some(
+      (batch) => batch.batch_id === requestedBatchId,
+    );
+
+    if (
+      resultState.currentPage === 1 &&
+      requestedBatchId &&
+      !requestedBatchExistsOnPage &&
+      pageData.hasNextPage
+    ) {
+      const resolvedPage = await findBatchPage(requestedBatchId, 2);
+      if (resolvedPage) {
+        resultState.currentPage = resolvedPage.page;
+        pageData = resolvedPage.pageData;
+      }
+    }
+
+    resultState.batches = pageData.batches;
+    resultState.hasNextPage = pageData.hasNextPage;
+
+    if (!resultState.batches.length && resultState.currentPage > 1) {
+      return loadUploadBatches({
+        page: resultState.currentPage - 1,
+        shouldAutoSelect,
+      });
+    }
+
+    const hasSelectedBatch = resultState.batches.some(
+      (batch) => batch.batch_id === resultState.selectedBatchId,
+    );
     if (!hasSelectedBatch) {
       resultState.selectedBatchId = null;
     }
 
     renderUploadList();
-    setUploadListStatus(resultState.batches.length ? "Mỗi lần hiển thị 10 lượt upload. Bấm Xem thêm để tải tiếp." : "Chưa có dữ liệu phân tích.");
+    setUploadListStatus(
+      resultState.batches.length
+        ? `Trang ${resultState.currentPage}: hiển thị tối đa ${PAGE_SIZE} lượt upload.`
+        : "Chưa có dữ liệu phân tích.",
+    );
 
-    const requestedBatchId = new URLSearchParams(window.location.search).get("batch_id");
-    const requestedBatchExists = resultState.batches.some((batch) => batch.batch_id === requestedBatchId);
-    const firstBatchId = requestedBatchExists ? requestedBatchId : resultState.selectedBatchId || resultState.batches[0]?.batch_id;
+    const requestedBatchExists = resultState.batches.some(
+      (batch) => batch.batch_id === requestedBatchId,
+    );
+    const firstBatchId = shouldAutoSelect
+      ? requestedBatchExists
+        ? requestedBatchId
+        : resultState.selectedBatchId || resultState.batches[0]?.batch_id
+      : null;
     if (firstBatchId) {
       selectBatch(firstBatchId);
     } else {
@@ -359,7 +564,8 @@ async function loadUploadBatches() {
     }
   } catch (error) {
     resultState.batches = [];
-    resultState.visibleCount = PAGE_SIZE;
+    resultState.currentPage = 1;
+    resultState.hasNextPage = false;
     renderUploadList();
     resetSelectedUploadView();
     setUploadListStatus(getFriendlyErrorMessage(error), "error");
@@ -371,7 +577,9 @@ function initRunAnalysisButton() {
   if (!button) return;
 
   button.addEventListener("click", () => {
-    const batch = resultState.batches.find((item) => item.batch_id === resultState.selectedBatchId);
+    const batch = resultState.batches.find(
+      (item) => item.batch_id === resultState.selectedBatchId,
+    );
     if (!batch) return;
 
     resultState.analysisStarted = true;
@@ -380,17 +588,8 @@ function initRunAnalysisButton() {
   });
 }
 
-function initLoadMoreButton() {
-  const button = document.querySelector("#loadMoreUploadsButton");
-  if (!button) return;
-
-  button.addEventListener("click", () => {
-    resultState.visibleCount += PAGE_SIZE;
-    renderUploadList();
-  });
-}
-
-document.querySelector("#refreshUploadsButton")?.addEventListener("click", loadUploadBatches);
+document
+  .querySelector("#refreshUploadsButton")
+  ?.addEventListener("click", loadUploadBatches);
 initRunAnalysisButton();
-initLoadMoreButton();
 loadUploadBatches();
