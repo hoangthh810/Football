@@ -18,56 +18,91 @@
         <a href="login.html">Đăng xuất</a>
       </nav>
     </aside>
+
     <main class="dashboard-main">
       <header class="dashboard-header">
-        <div><p class="eyebrow">Analysis result</p><h1>Kết quả detect và mapping cầu thủ</h1></div>
-        <a class="nav-button solid" href="user-upload.html">Tạo job mới</a>
+        <div>
+          <p class="eyebrow">Không gian phân tích</p>
+          <h1>Chọn upload để phân tích</h1>
+        </div>
+        <a class="nav-button solid" href="user-upload.html">Upload dữ liệu mới</a>
       </header>
 
-      <section class="result-grid">
-        <div class="panel">
-          <div class="section-heading compact"><p class="eyebrow">Video preview</p><h2>Bounding box preview</h2></div>
-          <div class="pitch-preview">
-            <div class="pitch-line center"></div>
-            <div class="pitch-line box left"></div>
-            <div class="pitch-line box right"></div>
-            <button class="player-box p1" type="button" data-player="Nguyen Van Lam"><span>1</span></button>
-            <button class="player-box p2" type="button" data-player="Tran Minh Khoa"><span>8</span></button>
-            <button class="player-box p3" type="button" data-player="Le Quang Hai"><span>19</span></button>
-            <button class="player-box p4 away" type="button" data-player="Park Joon Ho"><span>10</span></button>
-            <button class="player-box p5 away" type="button" data-player="Pham Duc Anh"><span>7</span></button>
+      <section class="analysis-layout">
+        <aside class="panel upload-picker-panel">
+          <div class="section-heading compact">
+            <p class="eyebrow">Dữ liệu đã upload</p>
+            <h2>Danh sách upload</h2>
           </div>
-          <div class="selected-player" id="selectedPlayer"><span class="status-dot"></span>Chọn bounding box để xem hồ sơ cầu thủ.</div>
-        </div>
-        <div class="panel">
-          <div class="section-heading compact"><p class="eyebrow">Extracted lineup</p><h2>Danh sách từ PDF</h2></div>
-          <div class="tabs" role="tablist">
-            <button class="tab active" type="button" data-team="home">Home</button>
-            <button class="tab" type="button" data-team="away">Away</button>
+          <div class="picker-actions">
+            <button class="primary-action" id="refreshUploadsButton" type="button">Tải lại</button>
+            <span class="status-pill" id="uploadCount">0 lượt upload</span>
           </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Số áo</th><th>Cầu thủ</th><th>Vị trí</th></tr></thead>
-              <tbody id="lineupBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+          <p class="result-status" id="uploadListStatus">Đang tải danh sách upload...</p>
+          <div class="upload-list" id="uploadList" aria-label="Danh sách upload đã lưu"></div>
+          <button class="load-more-button" id="loadMoreUploadsButton" type="button" hidden>Xem thêm 10 lượt upload</button>
+        </aside>
 
-      <section class="panel">
-        <div class="section-heading compact"><p class="eyebrow">Detections</p><h2>Top detection records</h2></div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Frame</th><th>Số áo</th><th>Cầu thủ</th><th>Đội</th><th>Confidence</th></tr></thead>
-            <tbody>
-              <tr><td>00:12:08</td><td>#19</td><td>Le Quang Hai</td><td>Hanoi FC</td><td>88.9%</td></tr>
-              <tr><td>00:18:41</td><td>#10</td><td>Park Joon Ho</td><td>Saigon United</td><td>94.8%</td></tr>
-              <tr><td>00:31:22</td><td>#8</td><td>Tran Minh Khoa</td><td>Hanoi FC</td><td>91.4%</td></tr>
-            </tbody>
-          </table>
+        <div class="analysis-content">
+          <section class="panel empty-state" id="emptyState">
+            <p class="eyebrow">Chưa chọn upload</p>
+            <h2>Chọn một lượt upload ở bên trái</h2>
+            <p>Chọn trận đấu đã upload để xem dữ liệu và chạy phân tích.</p>
+          </section>
+
+          <section class="panel selected-upload-panel" id="selectedUploadPanel" hidden>
+            <div class="selected-upload-header">
+              <div>
+                <p class="eyebrow">Upload đã chọn</p>
+                <h2 id="selectedBatchTitle">Upload chưa đặt tên</h2>
+                <p id="selectedBatchMeta">Chưa có dữ liệu</p>
+              </div>
+              <button class="primary-action" id="runAnalysisButton" type="button">Chạy phân tích</button>
+            </div>
+            <div class="selected-files" id="selectedFiles"></div>
+          </section>
+
+          <section class="result-grid" id="analysisPanels" hidden>
+            <div class="panel">
+              <div class="section-heading compact">
+                <p class="eyebrow">Video trận đấu</p>
+                <h2>Xem video đã chọn</h2>
+              </div>
+              <div class="media-preview" id="videoPreview">
+                <span>Chưa có video trong upload này.</span>
+              </div>
+              <div class="selected-player" id="selectedPlayer"><span class="status-dot"></span>Chạy phân tích để xem mapping cầu thủ.</div>
+            </div>
+
+            <div class="panel">
+              <div class="section-heading compact">
+                <p class="eyebrow">PDF đội hình</p>
+                <h2>Xem PDF đội hình</h2>
+              </div>
+              <div class="media-preview pdf-preview" id="pdfPreview">
+                <span>Chưa có PDF trong upload này.</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" id="analysisResultPanel" hidden>
+            <div class="section-heading compact">
+              <p class="eyebrow">Kết quả nhận diện</p>
+              <h2>Kết quả mapping</h2>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Thời điểm</th><th>Số áo</th><th>Cầu thủ</th><th>Đội</th><th>Độ tin cậy</th></tr>
+                </thead>
+                <tbody id="detectionsBody"></tbody>
+              </table>
+            </div>
+          </section>
         </div>
       </section>
     </main>
+
     <script src="../js/user-results.js"></script>
   </body>
 </html>

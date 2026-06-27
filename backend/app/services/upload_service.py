@@ -176,7 +176,53 @@ def format_upload_response(upload_document: dict, file_id: str):
     }
 
 
-async def upload_match_files_service(pdf_file: UploadFile, video_file: UploadFile):
+def serialize_datetime(value):
+    if isinstance(value, datetime):
+        return value.isoformat()
+    return value
+
+
+def normalize_analysis_info(analysis_info: dict | None) -> dict:
+    analysis_info = analysis_info or {}
+
+    return {
+        "job_name": str(analysis_info.get("job_name") or "").strip(),
+        "match_date": str(analysis_info.get("match_date") or "").strip(),
+        "model_version": str(analysis_info.get("model_version") or "").strip(),
+        "job_note": str(analysis_info.get("job_note") or "").strip(),
+    }
+
+
+def build_analysis_job_document(
+    batch_id: str,
+    analysis_info: dict,
+    file_ids: list[str],
+) -> dict:
+    now = datetime.now(timezone.utc)
+
+    return {
+        "batch_id": batch_id,
+        "analysis_info": normalize_analysis_info(analysis_info),
+        "file_ids": file_ids,
+        "status": "uploaded",
+        "created_at": now,
+        "updated_at": now,
+    }
+
+
+def format_analysis_job_response(job_document: dict) -> dict:
+    return {
+        "job_id": str(job_document["_id"]),
+        "batch_id": job_document.get("batch_id"),
+        "analysis_info": job_document.get("analysis_info") or {},
+        "file_ids": job_document.get("file_ids") or [],
+        "files": job_document.get("files") or [],
+        "status": job_document.get("status", "uploaded"),
+        "created_at": serialize_datetime(job_document.get("created_at")),
+        "updated_at": serialize_datetime(job_document.get("updated_at")),
+    }
+
+async def upload_match_files_service(pdf_file: UploadFile, video_file: UploadFile, analysis_info: dict):
     pdf_extension, pdf_config = validate_expected_file(pdf_file, "pdf")
     video_extension, video_config = validate_expected_file(video_file, "video")
 
@@ -215,17 +261,26 @@ async def upload_match_files_service(pdf_file: UploadFile, video_file: UploadFil
             batch_id=batch_id,
         )
 
-        result = await database["uploads"].insert_many([pdf_document, video_document])
-        file_ids = [str(inserted_id) for inserted_id in result.inserted_ids]
+        upload_result = await database["uploads"].insert_many([pdf_document, video_document])
+        file_ids = [str(inserted_id) for inserted_id in upload_result.inserted_ids]
+        files = [
+            format_upload_response(pdf_document, file_ids[0]),
+            format_upload_response(video_document, file_ids[1]),
+        ]
+        analysis_job_document = build_analysis_job_document(
+            batch_id=batch_id,
+            analysis_info=analysis_info,
+            file_ids=file_ids,
+        )
+        analysis_job_result = await database["analysis_jobs"].insert_one(analysis_job_document)
 
         return {
             "message": "Upload batch successful",
+            "job_id": str(analysis_job_result.inserted_id),
             "batch_id": batch_id,
+            "analysis_info": analysis_job_document["analysis_info"],
             "status": "uploaded",
-            "files": [
-                format_upload_response(pdf_document, file_ids[0]),
-                format_upload_response(video_document, file_ids[1]),
-            ],
+            "files": files,
         }
 
     except HTTPException:
@@ -238,6 +293,7 @@ async def upload_match_files_service(pdf_file: UploadFile, video_file: UploadFil
             saved_path.unlink(missing_ok=True)
         try:
             await database["uploads"].delete_many({"batch_id": batch_id})
+            await database["analysis_jobs"].delete_many({"batch_id": batch_id})
         except Exception:
             pass
         raise HTTPException(

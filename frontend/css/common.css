@@ -50,6 +50,10 @@ img {
   max-width: 100%;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .brand {
   align-items: center;
   display: inline-flex;

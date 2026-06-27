@@ -271,11 +271,15 @@ function parseUploadResponse(request) {
   }
 }
 
-function uploadMatchFiles(pdfFile, videoFile, onProgress) {
+function uploadMatchFiles(pdfFile, videoFile, jobData, onProgress) {
   return new Promise((resolve, reject) => {
     const formData = new FormData();
     formData.append("pdf_file", pdfFile);
     formData.append("video_file", videoFile);
+    formData.append("job_name", jobData.job_name);
+    formData.append("match_date", jobData.match_date);
+    formData.append("model_version", jobData.model_version);
+    formData.append("job_note", jobData.job_note || "");
 
     const request = new XMLHttpRequest();
     request.open("POST", `${getApiBaseUrl()}/api/v1/upload/match-files`);
@@ -331,7 +335,7 @@ function initUploadJobForm() {
     setPipelineStep(0);
 
     try {
-      const uploadResult = await uploadMatchFiles(uploadState.pdf, uploadState.video, (percent) => {
+      const uploadResult = await uploadMatchFiles(uploadState.pdf, uploadState.video, jobData, (percent) => {
         setOverlayProgress(percent);
         if (percent >= 100) {
           setUploadOverlay("uploading", "Đang xử lý", "File đã gửi xong. Đang chờ backend lưu dữ liệu.", 100);
@@ -343,8 +347,8 @@ function initUploadJobForm() {
       setPipelineStep(1);
       setTimeout(() => setPipelineStep(2), 450);
       setTimeout(() => setPipelineStep(3), 900);
-      setUploadStatus(`Upload thành công: ${jobData.job_name}. Batch ${uploadResult.batch_id} đã lưu đủ PDF và video.`, "success");
-      setUploadOverlay("success", "Upload thành công", `Backend đã lưu đủ PDF và video cho batch ${uploadResult.batch_id}.`, 100);
+      setUploadStatus(`Upload thành công: ${jobData.job_name}. Job ${uploadResult.job_id || "N/A"} đã lưu thông tin phân tích và batch ${uploadResult.batch_id}.`, "success");
+      setUploadOverlay("success", "Upload thành công", `Backend đã lưu job phân tích ${uploadResult.job_id || "N/A"} cho batch ${uploadResult.batch_id}.`, 100);
       button.textContent = "Upload lại";
     } catch (error) {
       setUploadStatus(`Upload thất bại: ${error.message}`, "error");

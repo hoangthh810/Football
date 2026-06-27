@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api.v1.api import api_router
+from app.services.upload_service import UPLOAD_ROOT
+
+UPLOAD_ROOT.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(
     title="Detect Football API",
@@ -20,6 +24,7 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix="/api/v1")
+app.mount("/uploads", StaticFiles(directory=UPLOAD_ROOT), name="uploads")
 
 
 @app.get("/")
