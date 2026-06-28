@@ -1,6 +1,95 @@
-.file-meta {
+.profile-shell {
+  display: grid;
+  max-width: 880px;
+}
+
+.profile-panel {
+  display: grid;
+  gap: 24px;
+}
+
+.profile-header {
+  align-items: center;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.profile-header h2 {
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  line-height: 1.08;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.profile-header p:not(.eyebrow) {
   color: var(--muted);
-  line-height: 1.6;
-  margin: 8px auto 0;
-  max-width: 520px;
+  line-height: 1.45;
+  margin: 8px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.profile-avatar {
+  align-items: center;
+  background: var(--green-dark);
+  border-radius: 8px;
+  color: #fff;
+  display: grid;
+  font-size: 1.1rem;
+  font-weight: 900;
+  height: 72px;
+  letter-spacing: 0;
+  place-items: center;
+  width: 72px;
+}
+
+.profile-fields {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+}
+
+.profile-fields div {
+  background: #f7fafb;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+}
+
+.profile-fields dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.profile-fields dd {
+  color: var(--ink);
+  font-size: 1.02rem;
+  font-weight: 850;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.profile-status {
+  background: #eef4f6;
+  border-radius: 8px;
+  color: #40515e;
+  line-height: 1.5;
+  margin: 0;
+  padding: 12px 14px;
+}
+
+@media (max-width: 680px) {
+  .profile-header {
+    align-items: flex-start;
+    grid-template-columns: 1fr;
+  }
+
+  .profile-avatar {
+    height: 58px;
+    width: 58px;
+  }
 }

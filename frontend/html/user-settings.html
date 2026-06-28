@@ -22,26 +22,35 @@
       <header class="dashboard-header">
         <div><p class="eyebrow">Account</p><h1>Cài đặt tài khoản</h1></div>
       </header>
-      <section class="settings-grid">
-        <div class="panel">
-          <div class="section-heading compact"><p class="eyebrow">Profile</p><h2>Thông tin cá nhân</h2></div>
-          <form class="job-form">
-            <label>Họ tên<input value="Nguyen Minh Anh" /></label>
-            <label>Email<input value="analyst@club.vn" /></label>
-            <label>Vai trò<input value="Data analyst" /></label>
-            <label>Đơn vị<input value="Hanoi FC Analysis Team" /></label>
-          </form>
-          <button class="primary-action" type="button">Lưu thay đổi</button>
-        </div>
-        <div class="panel">
-          <div class="section-heading compact"><p class="eyebrow">API</p><h2>Endpoint backend</h2></div>
-          <form class="job-form">
-            <label>FastAPI Base URL<input id="apiBase" value="http://localhost:8000" /></label>
-            <label>Upload endpoint<input value="/api/v1/jobs/upload" /></label>
-            <label>Result endpoint<input value="/api/v1/jobs/{id}/results" /></label>
-          </form>
-          <button class="primary-action" id="saveApi" type="button">Lưu endpoint</button>
-          <p class="file-meta" id="apiStatus">Endpoint demo, chưa gọi request thật.</p>
+
+      <section class="profile-shell">
+        <div class="panel profile-panel">
+          <div class="profile-header">
+            <div class="profile-avatar" id="profileAvatar" aria-hidden="true">MV</div>
+            <div>
+              <p class="eyebrow">Profile</p>
+              <h2 id="profileName">Đang tải hồ sơ...</h2>
+              <p id="profileEmail">Đang đồng bộ dữ liệu tài khoản từ backend.</p>
+            </div>
+            <span class="status-pill" id="profileRole">...</span>
+          </div>
+
+          <dl class="profile-fields">
+            <div>
+              <dt>Họ tên</dt>
+              <dd id="profileFullname">...</dd>
+            </div>
+            <div>
+              <dt>Email</dt>
+              <dd id="profileEmailField">...</dd>
+            </div>
+            <div>
+              <dt>Vai trò</dt>
+              <dd id="profileRoleField">...</dd>
+            </div>
+          </dl>
+
+          <p class="profile-status" id="profileStatus">Đang tải thông tin hồ sơ.</p>
         </div>
       </section>
     </main>

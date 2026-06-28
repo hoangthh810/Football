@@ -21,6 +21,7 @@
   }
 
   function getErrorMessage(payload, fallback) {
+    if (typeof payload === "string") return payload;
     if (typeof payload?.detail === "string") return payload.detail;
     if (Array.isArray(payload?.detail) && payload.detail.length) {
       return payload.detail
@@ -32,15 +33,49 @@
     return fallback;
   }
 
-  function saveSession(loginResponse) {
-    localStorage.setItem(TOKEN_KEY, loginResponse.access_token);
+  async function parseResponseBody(response) {
+    const text = await response.text();
+    if (!text) return {};
+
+    try {
+      return JSON.parse(text);
+    } catch {
+      return text;
+    }
+  }
+
+  function extractToken(loginPayload) {
+    if (typeof loginPayload === "string") return loginPayload;
+    if (typeof loginPayload?.access_token === "string") return loginPayload.access_token;
+    if (typeof loginPayload?.token === "string") return loginPayload.token;
+    return "";
+  }
+
+  async function fetchProfile(token) {
+    const response = await fetch(`${getApiBaseUrl()}/api/v1/auth/profile`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const payload = await parseResponseBody(response);
+
+    if (!response.ok) {
+      throw new Error(getErrorMessage(payload, `Không tải được hồ sơ người dùng. HTTP ${response.status}`));
+    }
+
+    return payload;
+  }
+
+  function saveSession(token, profile) {
+    localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(
       USER_KEY,
       JSON.stringify({
-        user_email: loginResponse.user_email,
-        user_fullname: loginResponse.user_fullname,
-        user_role: loginResponse.user_role,
-        token_type: loginResponse.token_type,
+        user_id: profile.user_id,
+        user_email: profile.user_email,
+        user_fullname: profile.user_fullname,
+        user_role: profile.user_role,
+        token_type: "bearer",
       }),
     );
   }
@@ -104,7 +139,7 @@
           },
           body: JSON.stringify(payload),
         });
-        const result = await response.json().catch(() => ({}));
+        const result = await parseResponseBody(response);
 
         if (!response.ok) {
           throw new Error(getErrorMessage(result, `Đăng ký thất bại. HTTP ${response.status}`));
@@ -155,16 +190,22 @@
           },
           body: JSON.stringify(payload),
         });
-        const result = await response.json().catch(() => ({}));
+        const result = await parseResponseBody(response);
 
         if (!response.ok) {
           throw new Error(getErrorMessage(result, `Đăng nhập thất bại. HTTP ${response.status}`));
         }
 
-        saveSession(result);
+        const token = extractToken(result);
+        if (!token) {
+          throw new Error("Backend không trả token đăng nhập hợp lệ.");
+        }
+
+        const profile = await fetchProfile(token);
+        saveSession(token, profile);
         setAuthMessage("Đăng nhập thành công.", "success");
         window.setTimeout(() => {
-          window.location.href = getNextUrl(result.user_role);
+          window.location.href = getNextUrl(profile.user_role);
         }, 500);
       } catch (error) {
         const isNetworkError = error instanceof TypeError || error.message === "Failed to fetch";
