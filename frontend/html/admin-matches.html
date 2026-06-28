@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="../css/dashboard.css" />
     <link rel="stylesheet" href="../css/admin.css" />
   </head>
-  <body class="dashboard-page">
+  <body class="dashboard-page" data-protected-role="admin">
     <aside class="sidebar admin-sidebar">
       <a class="brand" href="index.html"><span class="brand-mark">MV</span><span><strong>MatchVision</strong><small>Admin console</small></span></a>
       <nav class="side-nav">
@@ -36,5 +36,6 @@
         </div>
       </section>
     </main>
+    <script src="../js/auth-guard.js"></script>
   </body>
 </html>

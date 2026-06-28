@@ -1,15 +1,29 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
 
 from app.api.v1.api import api_router
 from app.services.upload_service import UPLOAD_ROOT
+from app.db.init_indexs import create_indexes
 
 UPLOAD_ROOT.mkdir(parents=True, exist_ok=True)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Code chạy khi app start
+    await create_indexes()
+
+    yield
+
+    # Code chạy khi app shutdown
+    # Ví dụ sau này muốn đóng kết nối DB thì để ở đây
+
 app = FastAPI(
     title="Detect Football API",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 app.add_middleware(
@@ -25,7 +39,6 @@ app.add_middleware(
 
 app.include_router(api_router, prefix="/api/v1")
 app.mount("/uploads", StaticFiles(directory=UPLOAD_ROOT), name="uploads")
-
 
 @app.get("/")
 def root():

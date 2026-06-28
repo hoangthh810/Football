@@ -1,3 +1,6 @@
+(function () {
+if (window.__matchvisionAuthBlocked) return;
+
 function initApiSettings() {
   const apiBase = document.querySelector("#apiBase");
   const apiStatus = document.querySelector("#apiStatus");
@@ -14,3 +17,5 @@ function initApiSettings() {
 }
 
 initApiSettings();
+
+})();

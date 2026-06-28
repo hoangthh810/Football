@@ -50,26 +50,25 @@
 
           <form class="auth-form" data-auth-form>
             <label>Họ tên
-              <input data-auth-input type="text" placeholder="Nguyễn Minh Anh" required />
+              <input data-auth-input name="user_fullname" type="text" placeholder="Nguyễn Minh Anh" required />
             </label>
             <label>Email
-              <input data-auth-input type="email" placeholder="you@club.vn" required />
+              <input data-auth-input name="user_email" type="email" placeholder="you@club.vn" required />
             </label>
             <label>Vai trò
-              <select data-auth-input required>
-                <option>Data analyst</option>
-                <option>Coach</option>
-                <option>AI engineer</option>
-                <option>Admin</option>
+              <select data-auth-input name="user_role" required>
+                <option value="user">Người dùng</option>
+                <option value="admin">Admin</option>
               </select>
             </label>
             <label>Mật khẩu
               <span class="password-field">
-                <input data-auth-input data-password-input type="password" placeholder="Tối thiểu 8 ký tự" required />
+                <input data-auth-input data-password-input name="user_password" type="password" minlength="8" placeholder="Tối thiểu 8 ký tự" required />
                 <button class="password-toggle" type="button" data-password-toggle>Hiện</button>
               </span>
             </label>
-            <a class="submit-link" href="user-upload.html">Tạo tài khoản demo</a>
+            <button class="submit-link" type="submit" data-submit-button>Tạo tài khoản</button>
+            <p class="auth-message" data-auth-message aria-live="polite"></p>
           </form>
 
           <p class="auth-switch">Đã có tài khoản? <a href="login.html">Đăng nhập</a></p>

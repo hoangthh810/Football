@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="../css/dashboard.css" />
     <link rel="stylesheet" href="../css/upload.css" />
   </head>
-  <body class="dashboard-page">
+  <body class="dashboard-page" data-protected-role="user">
     <aside class="sidebar">
       <a class="brand" href="index.html"><span class="brand-mark">MV</span><span><strong>MatchVision</strong><small>User workspace</small></span></a>
       <nav class="side-nav">
@@ -95,6 +95,7 @@
         <button class="primary-action" id="uploadOverlayClose" type="button" hidden>Đóng</button>
       </div>
     </div>
+    <script src="../js/auth-guard.js"></script>
     <script src="../js/user-upload.js"></script>
   </body>
 </html>

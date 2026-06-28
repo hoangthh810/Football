@@ -33,7 +33,3 @@ async def get_match_files(limit: int = 5, skip: int = 0):
     )
     return {"analysis_jobs": analysis_jobs, "uploads_files": uploads_files}
 
-
-# @router.get("/get_match-files/{file_id}")
-# async def get_match_files():
-#     pass

@@ -4,6 +4,58 @@
   const liveStatus = document.querySelector("[data-live-status]");
   const interactiveCards = document.querySelectorAll(".auth-card, .auth-preview");
   const inputs = document.querySelectorAll("[data-auth-input]");
+  const authForm = document.querySelector("[data-auth-form]");
+  const authMessage = document.querySelector("[data-auth-message]");
+  const submitButton = document.querySelector("[data-submit-button]");
+  const TOKEN_KEY = "matchvision_auth_token";
+  const USER_KEY = "matchvision_auth_user";
+
+  function getApiBaseUrl() {
+    return (localStorage.getItem("matchvision_api_base") || "http://localhost:8000").replace(/\/$/, "");
+  }
+
+  function setAuthMessage(message, type = "default") {
+    if (!authMessage) return;
+    authMessage.textContent = message;
+    authMessage.dataset.state = type;
+  }
+
+  function getErrorMessage(payload, fallback) {
+    if (typeof payload?.detail === "string") return payload.detail;
+    if (Array.isArray(payload?.detail) && payload.detail.length) {
+      return payload.detail
+        .map((item) => item?.msg || item?.message || "")
+        .filter(Boolean)
+        .join(" ");
+    }
+    if (typeof payload?.message === "string") return payload.message;
+    return fallback;
+  }
+
+  function saveSession(loginResponse) {
+    localStorage.setItem(TOKEN_KEY, loginResponse.access_token);
+    localStorage.setItem(
+      USER_KEY,
+      JSON.stringify({
+        user_email: loginResponse.user_email,
+        user_fullname: loginResponse.user_fullname,
+        user_role: loginResponse.user_role,
+        token_type: loginResponse.token_type,
+      }),
+    );
+  }
+
+  function getNextUrl(userRole) {
+    const requestedNext = new URLSearchParams(window.location.search).get("next");
+    if (requestedNext) {
+      const nextFile = requestedNext.split("?")[0];
+      const isLocalPage = /^[a-z0-9-]+\.html$/i.test(nextFile);
+      const isAdminTarget = nextFile.startsWith("admin-");
+      if (isLocalPage && (!isAdminTarget || userRole === "admin")) return requestedNext;
+    }
+
+    return userRole === "admin" ? "admin-dashboard.html" : "user-upload.html";
+  }
 
   function setFilledState(input) {
     input.classList.toggle("is-filled", Boolean(input.value.trim()));
@@ -25,6 +77,111 @@
       input.focus();
     });
   });
+
+  if (document.body.dataset.authPage === "register" && authForm) {
+    authForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(authForm);
+      const payload = {
+        user_fullname: String(formData.get("user_fullname") || "").trim(),
+        user_email: String(formData.get("user_email") || "").trim(),
+        user_role: String(formData.get("user_role") || "user"),
+        user_password: String(formData.get("user_password") || ""),
+      };
+
+      setAuthMessage("Đang tạo tài khoản...", "loading");
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = "Đang tạo...";
+      }
+
+      try {
+        const response = await fetch(`${getApiBaseUrl()}/api/v1/auth/register`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(getErrorMessage(result, `Đăng ký thất bại. HTTP ${response.status}`));
+        }
+
+        setAuthMessage(result.message || "Đăng ký tài khoản thành công.", "success");
+        window.setTimeout(() => {
+          window.location.href = "login.html";
+        }, 900);
+      } catch (error) {
+        const isNetworkError = error instanceof TypeError || error.message === "Failed to fetch";
+        setAuthMessage(
+          isNetworkError
+            ? "Không kết nối được máy chủ. Hãy kiểm tra backend rồi thử lại."
+            : error.message,
+          "error",
+        );
+      } finally {
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = "Tạo tài khoản";
+        }
+      }
+    });
+  }
+
+  if (document.body.dataset.authPage === "login" && authForm) {
+    authForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(authForm);
+      const payload = {
+        user_email: String(formData.get("user_email") || "").trim(),
+        user_password: String(formData.get("user_password") || ""),
+      };
+
+      setAuthMessage("Đang đăng nhập...", "loading");
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = "Đang đăng nhập...";
+      }
+
+      try {
+        const response = await fetch(`${getApiBaseUrl()}/api/v1/auth/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(getErrorMessage(result, `Đăng nhập thất bại. HTTP ${response.status}`));
+        }
+
+        saveSession(result);
+        setAuthMessage("Đăng nhập thành công.", "success");
+        window.setTimeout(() => {
+          window.location.href = getNextUrl(result.user_role);
+        }, 500);
+      } catch (error) {
+        const isNetworkError = error instanceof TypeError || error.message === "Failed to fetch";
+        setAuthMessage(
+          isNetworkError
+            ? "Không kết nối được máy chủ. Hãy kiểm tra backend rồi thử lại."
+            : error.message,
+          "error",
+        );
+      } finally {
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = "Đăng nhập";
+        }
+      }
+    });
+  }
 
   if (!prefersReducedMotion && liveStatus) {
     const loginStatuses = ["Running", "Parsing PDF", "Detecting", "Mapping"];

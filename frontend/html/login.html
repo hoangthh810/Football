@@ -56,11 +56,11 @@
 
           <form class="auth-form" data-auth-form>
             <label>Email
-              <input data-auth-input type="email" placeholder="analyst@club.vn" required />
+              <input data-auth-input name="user_email" type="email" placeholder="analyst@club.vn" required />
             </label>
             <label>Mật khẩu
               <span class="password-field">
-                <input data-auth-input data-password-input type="password" placeholder="••••••••" required />
+                <input data-auth-input data-password-input name="user_password" type="password" placeholder="••••••••" required />
                 <button class="password-toggle" type="button" data-password-toggle>Hiện</button>
               </span>
             </label>
@@ -68,7 +68,8 @@
               <label class="check-label"><input type="checkbox" /> Ghi nhớ tôi</label>
               <a href="login.html">Quên mật khẩu?</a>
             </div>
-            <a class="submit-link" href="user-upload.html">Đăng nhập demo</a>
+            <button class="submit-link" type="submit" data-submit-button>Đăng nhập</button>
+            <p class="auth-message" data-auth-message aria-live="polite"></p>
           </form>
 
           <div class="auth-divider"><span>hoặc</span></div>

@@ -1,4 +1,7 @@
-const PAGE_SIZE = 5;
+(function () {
+if (window.__matchvisionAuthBlocked) return;
+
+const PAGE_SIZE = 4;
 const MAX_BATCH_PAGE_SCAN = 100;
 
 const resultState = {
@@ -37,6 +40,11 @@ function getApiBaseUrl() {
   return (
     localStorage.getItem("matchvision_api_base") || "http://localhost:8000"
   ).replace(/\/$/, "");
+}
+
+function getAuthHeaders() {
+  const token = localStorage.getItem("matchvision_auth_token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 function escapeHtml(value) {
@@ -224,6 +232,9 @@ async function fetchUploadBatches(page = resultState.currentPage) {
   });
   const response = await fetch(
     `${getApiBaseUrl()}/api/v1/upload/analysis_jobs?${params}`,
+    {
+      headers: getAuthHeaders(),
+    },
   );
   const payload = await response.json().catch(() => ({}));
 
@@ -240,6 +251,9 @@ async function fetchUploadBatches(page = resultState.currentPage) {
   });
   const nextResponse = await fetch(
     `${getApiBaseUrl()}/api/v1/upload/analysis_jobs?${nextParams}`,
+    {
+      headers: getAuthHeaders(),
+    },
   );
   const nextPayload = await nextResponse.json().catch(() => ({}));
 
@@ -435,14 +449,10 @@ function renderPreviews(batch) {
 function renderDetections(batch) {
   const body = document.querySelector("#detectionsBody");
   const resultPanel = document.querySelector("#analysisResultPanel");
-  const selectedPlayer = document.querySelector("#selectedPlayer");
   if (!body || !resultPanel) return;
 
   if (!resultState.analysisStarted) {
     resultPanel.hidden = true;
-    if (selectedPlayer) {
-      selectedPlayer.innerHTML = `<span class="status-dot"></span>Chạy phân tích để xem mapping cầu thủ.`;
-    }
     return;
   }
 
@@ -461,15 +471,6 @@ function renderDetections(batch) {
     .join("");
 
   resultPanel.hidden = false;
-  if (selectedPlayer) {
-    selectedPlayer.innerHTML = `
-      <span class="status-dot"></span>
-      <span>
-        Đã chạy phân tích cho <strong>${escapeHtml(getBatchTitle(batch))}</strong>.
-        Kết quả hiện là dữ liệu demo cho tới khi backend inference được nối vào.
-      </span>
-    `;
-  }
 }
 
 function selectBatch(batchId) {
@@ -593,3 +594,5 @@ document
   ?.addEventListener("click", loadUploadBatches);
 initRunAnalysisButton();
 loadUploadBatches();
+
+})();

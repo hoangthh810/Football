@@ -1,3 +1,6 @@
+(function () {
+if (window.__matchvisionAuthBlocked) return;
+
 const uploadState = {
   pdf: null,
   video: null
@@ -35,6 +38,10 @@ function formatFileMeta(file) {
 
 function getApiBaseUrl() {
   return (localStorage.getItem("matchvision_api_base") || "http://localhost:8000").replace(/\/$/, "");
+}
+
+function getAuthToken() {
+  return localStorage.getItem("matchvision_auth_token") || "";
 }
 
 function setUploadStatus(message, type = "default") {
@@ -283,6 +290,8 @@ function uploadMatchFiles(pdfFile, videoFile, jobData, onProgress) {
 
     const request = new XMLHttpRequest();
     request.open("POST", `${getApiBaseUrl()}/api/v1/upload/match-files`);
+    const token = getAuthToken();
+    if (token) request.setRequestHeader("Authorization", `Bearer ${token}`);
 
     request.upload.addEventListener("progress", (event) => {
       if (!event.lengthComputable) return;
@@ -364,3 +373,5 @@ wireUploadZone("pdfDropZone", "pdfInput", "pdfMeta", "pdf");
 wireUploadZone("videoDropZone", "videoInput", "videoMeta", "video");
 document.querySelector("#uploadOverlayClose")?.addEventListener("click", closeUploadOverlay);
 initUploadJobForm();
+
+})();
