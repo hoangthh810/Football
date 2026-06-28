@@ -47,6 +47,11 @@ function getAuthHeaders() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+function redirectIfUnauthorized(response) {
+  if (!window.MatchVisionAuth?.handleUnauthorizedStatus(response.status)) return;
+  throw new Error("Phiên đăng nhập đã hết hạn. Đang chuyển về trang đăng nhập.");
+}
+
 function escapeHtml(value) {
   return String(value ?? "").replace(
     /[&<>"']/g,
@@ -237,6 +242,7 @@ async function fetchUploadBatches(page = resultState.currentPage) {
     },
   );
   const payload = await response.json().catch(() => ({}));
+  redirectIfUnauthorized(response);
 
   if (!response.ok) {
     throw new Error(
@@ -256,6 +262,7 @@ async function fetchUploadBatches(page = resultState.currentPage) {
     },
   );
   const nextPayload = await nextResponse.json().catch(() => ({}));
+  redirectIfUnauthorized(nextResponse);
 
   if (!nextResponse.ok) {
     throw new Error(
@@ -433,13 +440,21 @@ function renderPreviews(batch) {
 
   if (videoPreview) {
     const videoUrl = getPublicFileUrl(video);
+    videoPreview.classList.toggle("with-actions", Boolean(videoUrl));
     videoPreview.innerHTML = videoUrl
-      ? `<video src="${escapeHtml(videoUrl)}" controls preload="metadata"></video>`
+      ? `
+        <video class="preview-video" src="${escapeHtml(videoUrl)}" controls preload="metadata" playsinline></video>
+        <div class="media-preview-actions">
+          <span>${escapeHtml(video.original_filename || "Video trận đấu")}</span>
+          <a href="${escapeHtml(videoUrl)}" target="_blank" rel="noopener">Mở video</a>
+        </div>
+      `
       : "<span>Upload này chưa có video để preview.</span>";
   }
 
   if (pdfPreview) {
     const pdfUrl = getPublicFileUrl(pdf);
+    pdfPreview.classList.remove("with-actions");
     pdfPreview.innerHTML = pdfUrl
       ? `<iframe title="Preview ${escapeHtml(pdf.original_filename)}" src="${escapeHtml(pdfUrl)}"></iframe>`
       : "<span>Upload này chưa có PDF để preview.</span>";

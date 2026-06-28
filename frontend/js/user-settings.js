@@ -62,9 +62,7 @@ async function fetchProfile() {
   const payload = await response.json().catch(() => ({}));
 
   if (response.status === 401 || response.status === 403) {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-    window.location.replace("login.html?next=user-settings.html");
+    window.MatchVisionAuth?.handleUnauthorizedStatus(response.status);
     return null;
   }
 

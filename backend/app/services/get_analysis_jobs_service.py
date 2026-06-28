@@ -4,12 +4,16 @@ from fastapi import HTTPException
 from app.db.database import database
 
 
-async def get_job_analysis_and_upload_files_from_db(limit: int, skip: int) -> list:
+async def get_job_analysis_and_upload_files_from_db(
+    limit: int, skip: int, user_id: str
+) -> list:
     analysis_jobs = []
     batch_ids = []
 
     try:
-        cursor_job_analysis = database["analysis_jobs"].find({}).skip(skip).limit(limit)
+        cursor_job_analysis = (
+            database["analysis_jobs"].find({"user_id": user_id}).skip(skip).limit(limit)
+        )
 
         async for document in cursor_job_analysis:
             document["_id"] = str(document["_id"])
@@ -33,9 +37,10 @@ async def get_job_analysis_and_upload_files_from_db(limit: int, skip: int) -> li
     return analysis_jobs, uploads_files
 
 
-async def get_job_analysis_and_upload_files_service(limit: int, skip: int) -> list:
+async def get_job_analysis_and_upload_files_service(
+    limit: int, skip: int, user_id: str
+) -> list:
     analysis_jobs, uploads_files = await get_job_analysis_and_upload_files_from_db(
-        limit=limit,
-        skip=skip,
+        limit=limit, skip=skip, user_id=user_id
     )
     return analysis_jobs, uploads_files

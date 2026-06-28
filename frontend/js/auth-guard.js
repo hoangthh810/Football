@@ -40,6 +40,19 @@
     window.location.replace(`${loginUrl}?next=${encodeURIComponent(currentPage)}`);
   }
 
+  function handleUnauthorizedStatus(statusCode) {
+    if (statusCode !== 401 && statusCode !== 403) return false;
+    clearSession();
+    redirectToLogin();
+    return true;
+  }
+
+  function hasValidSession() {
+    const token = localStorage.getItem(TOKEN_KEY);
+    const user = getSessionUser();
+    return Boolean(token && user && !isExpired(token));
+  }
+
   function protectPage() {
     const requiredRole = document.body.dataset.protectedRole || "user";
     const token = localStorage.getItem(TOKEN_KEY);
@@ -61,6 +74,13 @@
     document.documentElement.dataset.authReady = "true";
   }
 
+  window.MatchVisionAuth = {
+    clearSession,
+    handleUnauthorizedStatus,
+    hasValidSession,
+    redirectToLogin,
+  };
+
   document.addEventListener("click", (event) => {
     const logoutLink = event.target.closest('a[href="login.html"]');
     if (!logoutLink) return;
@@ -68,4 +88,9 @@
   });
 
   protectPage();
+  window.addEventListener("focus", protectPage);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) protectPage();
+  });
+  window.setInterval(protectPage, 30000);
 })();

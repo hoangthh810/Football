@@ -6,7 +6,6 @@ from fastapi import UploadFile, HTTPException
 
 from app.db.database import database
 
-
 ALLOWED_FILES = {
     ".pdf": {
         "file_type": "pdf",
@@ -197,11 +196,13 @@ def build_analysis_job_document(
     batch_id: str,
     analysis_info: dict,
     file_ids: list[str],
+    user_id: str,
 ) -> dict:
     now = datetime.now(timezone.utc)
 
     return {
         "batch_id": batch_id,
+        "user_id": user_id,
         "analysis_info": normalize_analysis_info(analysis_info),
         "file_ids": file_ids,
         "status": "uploaded",
@@ -222,7 +223,10 @@ def format_analysis_job_response(job_document: dict) -> dict:
         "updated_at": serialize_datetime(job_document.get("updated_at")),
     }
 
-async def upload_match_files_service(pdf_file: UploadFile, video_file: UploadFile, analysis_info: dict):
+
+async def upload_match_files_service(
+    pdf_file: UploadFile, video_file: UploadFile, analysis_info: dict, user_id: str
+):
     pdf_extension, pdf_config = validate_expected_file(pdf_file, "pdf")
     video_extension, video_config = validate_expected_file(video_file, "video")
 
@@ -230,17 +234,21 @@ async def upload_match_files_service(pdf_file: UploadFile, video_file: UploadFil
     saved_paths = []
 
     try:
-        pdf_stored_filename, pdf_path, pdf_size, pdf_relative_path = await save_file_to_local(
-            file=pdf_file,
-            extension=pdf_extension,
-            file_config=pdf_config,
+        pdf_stored_filename, pdf_path, pdf_size, pdf_relative_path = (
+            await save_file_to_local(
+                file=pdf_file,
+                extension=pdf_extension,
+                file_config=pdf_config,
+            )
         )
         saved_paths.append(pdf_path)
 
-        video_stored_filename, video_path, video_size, video_relative_path = await save_file_to_local(
-            file=video_file,
-            extension=video_extension,
-            file_config=video_config,
+        video_stored_filename, video_path, video_size, video_relative_path = (
+            await save_file_to_local(
+                file=video_file,
+                extension=video_extension,
+                file_config=video_config,
+            )
         )
         saved_paths.append(video_path)
 
@@ -261,7 +269,9 @@ async def upload_match_files_service(pdf_file: UploadFile, video_file: UploadFil
             batch_id=batch_id,
         )
 
-        upload_result = await database["uploads"].insert_many([pdf_document, video_document])
+        upload_result = await database["uploads"].insert_many(
+            [pdf_document, video_document]
+        )
         file_ids = [str(inserted_id) for inserted_id in upload_result.inserted_ids]
         files = [
             format_upload_response(pdf_document, file_ids[0]),
@@ -271,8 +281,11 @@ async def upload_match_files_service(pdf_file: UploadFile, video_file: UploadFil
             batch_id=batch_id,
             analysis_info=analysis_info,
             file_ids=file_ids,
+            user_id=user_id,
         )
-        analysis_job_result = await database["analysis_jobs"].insert_one(analysis_job_document)
+        analysis_job_result = await database["analysis_jobs"].insert_one(
+            analysis_job_document
+        )
 
         return {
             "message": "Upload batch successful",

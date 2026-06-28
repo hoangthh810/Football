@@ -44,6 +44,11 @@ function getAuthToken() {
   return localStorage.getItem("matchvision_auth_token") || "";
 }
 
+function redirectIfUnauthorized(statusCode) {
+  if (!window.MatchVisionAuth?.handleUnauthorizedStatus(statusCode)) return false;
+  return true;
+}
+
 function setUploadStatus(message, type = "default") {
   const status = document.querySelector("#uploadStatus");
   if (!status) return;
@@ -304,6 +309,11 @@ function uploadMatchFiles(pdfFile, videoFile, jobData, onProgress) {
 
       if (request.status >= 200 && request.status < 300) {
         resolve(payload);
+        return;
+      }
+
+      if (redirectIfUnauthorized(request.status)) {
+        reject(new Error("Phiên đăng nhập đã hết hạn. Đang chuyển về trang đăng nhập."));
         return;
       }
 
