@@ -3,3 +3,4 @@ Update detect player
 Update video detect
 Update crop_images
 Update flowchart for LLMs
+Update flow for label crop image
