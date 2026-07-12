@@ -4,3 +4,4 @@ Update video detect
 Update crop_images
 Update flowchart for LLMs
 Update flow for label crop image
+Update function for detect region number
