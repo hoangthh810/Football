@@ -7,3 +7,4 @@ Update flow for label crop image
 Update function for detect region number
 Update data jersey
 Update work
+Update data for jersey
