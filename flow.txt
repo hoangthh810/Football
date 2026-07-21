@@ -1,0 +1,6 @@
+1. Dataset SoccerNet --> 
+2. Tạo lại dataset theo track id --> 
+3. Lọc lại dataset (giữ lại ảnh sắc nét) --> 
+4. Chia thủ công khoảng 2000 ảnh vào dataset có 2 class (legible và not_legible): trong đó legible chứa các ảnh có thể đọc số áo, còn với not_legible chứa các ảnh không thể đọc số áo cầu thủ) -->
+5. Train mô hình trên tập dataset vừa chia thủ công --> 
+6. Đem mô hình đã train đi dự đoán cho tập dataset track_id nhưng đã lọc các ảnh và đồng thời phân các ảnh vào dataset có 3 class legible, not_legible, uncertain
