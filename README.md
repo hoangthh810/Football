@@ -9,3 +9,4 @@ Update data jersey
 Update work
 Update data for jersey
 Update yolo jersey
+Update backend for yolo detect
